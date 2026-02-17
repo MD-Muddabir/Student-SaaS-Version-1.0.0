@@ -19,6 +19,8 @@ SELECT * FROM plans;
 
 SELECT * FROM attendance;
 
+SELECT * FROM attendances;
+
 SELECT * FROM fees_structure;
 
 SELECT * FROM fees_structures;

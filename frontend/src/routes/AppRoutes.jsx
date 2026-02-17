@@ -35,6 +35,7 @@ const Faculty = lazy(() => import("../pages/admin/Faculty"));
 const Classes = lazy(() => import("../pages/admin/Classes"));
 const Subjects = lazy(() => import("../pages/admin/Subjects"));
 const Attendance = lazy(() => import("../pages/admin/Attendance"));
+const Reports = lazy(() => import("../pages/admin/Reports"));
 const Fees = lazy(() => import("../pages/admin/Fees"));
 const Announcements = lazy(() => import("../pages/admin/Announcements"));
 const Settings = lazy(() => import("../pages/admin/Settings"));
@@ -113,6 +114,7 @@ function AppRoutes() {
                 <Route path="classes" element={<Classes />} />
                 <Route path="subjects" element={<Subjects />} />
                 <Route path="attendance" element={<Attendance />} />
+                <Route path="reports" element={<Reports />} />
                 <Route path="fees" element={<Fees />} />
                 <Route path="announcements" element={<Announcements />} />
                 <Route path="settings" element={<Settings />} />

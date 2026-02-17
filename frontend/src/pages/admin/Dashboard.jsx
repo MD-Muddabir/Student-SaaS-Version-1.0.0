@@ -116,6 +116,11 @@ function AdminDashboard() {
                         <span className="action-title">Manage Attendance</span>
                     </Link>
 
+                    <Link to="/admin/reports" className="action-card">
+                        <span className="action-icon">📊</span>
+                        <span className="action-title">Reports & Analytics</span>
+                    </Link>
+
                     <Link to="/admin/fees" className="action-card">
                         <span className="action-icon">💰</span>
                         <span className="action-title">Fee Management</span>
