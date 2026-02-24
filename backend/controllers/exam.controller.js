@@ -3,7 +3,7 @@
  * Handles exam and marks management
  */
 
-const { Exam, Mark, Student, Subject, User } = require("../models");
+const { Exam, Mark, Student, Subject, User, Faculty } = require("../models");
 const { Op } = require("sequelize");
 
 exports.createExam = async (req, res) => {
@@ -45,6 +45,16 @@ exports.getAllExams = async (req, res) => {
         if (class_id) whereClause.class_id = class_id;
         if (subject_id) whereClause.subject_id = subject_id;
 
+        let subjectWhereClause = {};
+        if (req.user.role === 'faculty') {
+            const facultyRecord = await Faculty.findOne({ where: { user_id: req.user.id } });
+            if (facultyRecord) {
+                subjectWhereClause.faculty_id = facultyRecord.id;
+            } else {
+                return res.status(200).json({ success: true, message: "Exams retrieved successfully", data: { exams: [], pagination: { total: 0, page: 1, limit: parseInt(limit), totalPages: 0 } } });
+            }
+        }
+
         const { count, rows } = await Exam.findAndCountAll({
             where: whereClause,
             limit: parseInt(limit),
@@ -54,6 +64,7 @@ exports.getAllExams = async (req, res) => {
                 {
                     model: Subject,
                     attributes: ["id", "name"],
+                    where: subjectWhereClause
                 },
             ],
         });
@@ -149,6 +160,27 @@ exports.getStudentResults = async (req, res) => {
         res.status(500).json({
             success: false,
             message: error.message,
+        });
+    }
+};
+
+exports.getExamMarks = async (req, res) => {
+    try {
+        const { exam_id } = req.params;
+        const institute_id = req.user.institute_id;
+
+        const marks = await Mark.findAll({
+            where: { exam_id, institute_id }
+        });
+
+        res.status(200).json({
+            success: true,
+            data: marks
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
         });
     }
 };

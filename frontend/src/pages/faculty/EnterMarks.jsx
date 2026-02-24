@@ -42,16 +42,45 @@ function EnterMarks() {
         try {
             const response = await api.get(`/students?class_id=${class_id}`);
             const fetchedStudents = response.data.data || [];
-            setStudents(fetchedStudents);
 
-            // Fetch the marks they already have (if any)
-            // Wait, we don't easily have an API to fetch all marks of an exam for all students in one go
-            // So we just leave it blank and allow them to input marks.
+            const examObj = exams.find(e => e.id === parseInt(selectedExam));
+            const formattedDate = new Date(examObj.exam_date).toISOString().split('T')[0];
+
+            let existingMarks = [];
+            try {
+                const marksRes = await api.get(`/exams/${examObj.id}/marks`);
+                existingMarks = marksRes.data.data || [];
+            } catch (err) {
+                console.error("Error fetching existing marks:", err);
+            }
+
+            let attendanceMap = {};
+            try {
+                const attendRes = await api.get(`/attendance/class/${class_id}/subject/${examObj.subject_id}/date/${formattedDate}`);
+                const attendRecords = attendRes.data.data || [];
+                attendRecords.forEach(r => {
+                    attendanceMap[r.student_id] = r.attendance?.status;
+                });
+            } catch (err) {
+                console.error("Error fetching attendance or feature locked:", err);
+            }
 
             const initialData = {};
-            fetchedStudents.forEach(st => {
-                initialData[st.id] = { marks_obtained: "" };
+            const finalStudents = fetchedStudents.map(st => {
+                const existingMark = existingMarks.find(m => m.student_id === st.id);
+                const isAbsent = attendanceMap[st.id] === 'absent';
+
+                initialData[st.id] = {
+                    marks_obtained: existingMark ? existingMark.marks_obtained : "",
+                    isSaved: !!existingMark,
+                    isEditing: false,
+                    isAbsent: isAbsent
+                };
+
+                return { ...st, isAbsent };
             });
+
+            setStudents(finalStudents);
             setMarksData(initialData);
         } catch (err) {
             console.error("Error fetching students:", err);
@@ -81,10 +110,21 @@ function EnterMarks() {
                 student_id: studentId,
                 marks_obtained: parseFloat(marks)
             });
+            setMarksData(prev => ({
+                ...prev,
+                [studentId]: { ...prev[studentId], isSaved: true, isEditing: false }
+            }));
             alert("Marks saved successfully!");
         } catch (err) {
             alert(err.response?.data?.message || "Error saving marks.");
         }
+    };
+
+    const handleEditMarks = (studentId) => {
+        setMarksData(prev => ({
+            ...prev,
+            [studentId]: { ...prev[studentId], isEditing: true }
+        }));
     };
 
     return (
@@ -152,6 +192,11 @@ function EnterMarks() {
                                     ) : (
                                         students.map((student) => {
                                             const examObj = exams.find(e => e.id === parseInt(selectedExam));
+                                            const stData = marksData[student.id] || {};
+                                            const isAbsent = stData.isAbsent;
+                                            const isSaved = stData.isSaved;
+                                            const isEditing = stData.isEditing;
+
                                             return (
                                                 <tr key={student.id}>
                                                     <td>
@@ -163,25 +208,43 @@ function EnterMarks() {
                                                         <small style={{ color: "#6b7280" }}>{student.User?.email}</small>
                                                     </td>
                                                     <td>
-                                                        <input
-                                                            type="number"
-                                                            className="form-input"
-                                                            max={examObj?.total_marks}
-                                                            min="0"
-                                                            step="0.5"
-                                                            value={marksData[student.id]?.marks_obtained}
-                                                            onChange={(e) => handleMarksChange(student.id, e.target.value)}
-                                                            placeholder={`Out of ${examObj?.total_marks}`}
-                                                            style={{ maxWidth: "150px" }}
-                                                        />
+                                                        {isAbsent ? (
+                                                            <span style={{ color: "red", fontWeight: "bold" }}>Absent</span>
+                                                        ) : (
+                                                            <input
+                                                                type="number"
+                                                                className="form-input"
+                                                                max={examObj?.total_marks}
+                                                                min="0"
+                                                                step="0.5"
+                                                                value={stData.marks_obtained}
+                                                                onChange={(e) => handleMarksChange(student.id, e.target.value)}
+                                                                placeholder={`Out of ${examObj?.total_marks}`}
+                                                                disabled={isSaved && !isEditing}
+                                                                style={{ maxWidth: "150px" }}
+                                                            />
+                                                        )}
                                                     </td>
                                                     <td>
-                                                        <button
-                                                            className="btn btn-sm btn-primary"
-                                                            onClick={() => handleSaveStudentMark(student.id)}
-                                                        >
-                                                            Save
-                                                        </button>
+                                                        {isAbsent ? (
+                                                            <span className="badge badge-warning">N/A</span>
+                                                        ) : (
+                                                            isSaved && !isEditing ? (
+                                                                <button
+                                                                    className="btn btn-sm btn-secondary"
+                                                                    onClick={() => handleEditMarks(student.id)}
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            ) : (
+                                                                <button
+                                                                    className="btn btn-sm btn-primary"
+                                                                    onClick={() => handleSaveStudentMark(student.id)}
+                                                                >
+                                                                    Save
+                                                                </button>
+                                                            )
+                                                        )}
                                                     </td>
                                                 </tr>
                                             );

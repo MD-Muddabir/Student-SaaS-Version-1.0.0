@@ -29,22 +29,33 @@ function StudentDashboard() {
             <div className="quick-actions">
                 <h2>Quick Actions</h2>
                 <div className="action-grid">
-                    <ActionCard path="/student/attendance" icon="📋" title="View Attendance" />
+                    {user?.features?.attendance !== 'none' && (
+                        <ActionCard path="/student/attendance" icon="📋" title="View Attendance" />
+                    )}
+                    {user?.features?.auto_attendance && (
+                        <ActionCard path="/student/scan-attendance" icon="📸" title="Scan Attendance" />
+                    )}
                     <ActionCard path="/student/marks" icon="📝" title="View Marks" />
-                    <ActionCard path="/student/pay-fees" icon="💳" title="Pay Fees" />
-                    <ActionCard path="/student/announcements" icon="📢" title="Announcements" />
+                    {user?.features?.fees && (
+                        <ActionCard path="/student/pay-fees" icon="💳" title="Pay Fees" />
+                    )}
+                    {user?.features?.announcements && (
+                        <ActionCard path="/student/announcements" icon="📢" title="Announcements" />
+                    )}
                     <ActionCard path="/student/profile" icon="👤" title="My Profile" />
                 </div>
             </div>
 
-            <div className="card" style={{ marginTop: '20px' }}>
-                <div className="card-header">
-                    <h3>Recent Announcements</h3>
+            {user?.features?.announcements && (
+                <div className="card" style={{ marginTop: '20px' }}>
+                    <div className="card-header">
+                        <h3>Recent Announcements</h3>
+                    </div>
+                    <div style={{ padding: '20px' }}>
+                        <p>Keep track of important updates from your institute.</p>
+                    </div>
                 </div>
-                <div style={{ padding: '20px' }}>
-                    <p>Keep track of important updates from your institute.</p>
-                </div>
-            </div>
+            )}
         </div>
     );
 }

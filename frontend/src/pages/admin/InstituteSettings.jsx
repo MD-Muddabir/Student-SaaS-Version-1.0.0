@@ -198,7 +198,7 @@ function InstituteSettings() {
                     <button
                         className="btn btn-primary"
                         style={{ marginTop: "1rem" }}
-                        onClick={() => navigate("/admin/subscription")}
+                        onClick={() => navigate("/pricing")}
                     >
                         View Plans & Upgrade
                     </button>

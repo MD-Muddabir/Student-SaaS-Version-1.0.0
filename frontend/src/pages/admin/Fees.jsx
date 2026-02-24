@@ -24,6 +24,7 @@ function Fees() {
     // Forms
     const [structureForm, setStructureForm] = useState({
         class_id: "",
+        subject_id: "",
         fee_type: "Tuition Fee",
         amount: "",
         due_date: "",
@@ -38,6 +39,8 @@ function Fees() {
         payment_date: new Date().toISOString().split('T')[0],
         remarks: ""
     });
+
+    const [availableSubjects, setAvailableSubjects] = useState([]);
 
     useEffect(() => {
         fetchInitialData();
@@ -60,6 +63,19 @@ function Fees() {
             console.error("Error fetching initial data", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchSubjects = async (classId) => {
+        if (!classId) {
+            setAvailableSubjects([]);
+            return;
+        }
+        try {
+            const response = await api.get(`/subjects?class_id=${classId}`);
+            setAvailableSubjects(response.data.data || []);
+        } catch (error) {
+            console.error("Error fetching subjects:", error);
         }
     };
 
@@ -90,6 +106,7 @@ function Fees() {
             fetchFeeStructures();
             setStructureForm({
                 class_id: "",
+                subject_id: "",
                 fee_type: "Tuition Fee",
                 amount: "",
                 due_date: "",
@@ -192,7 +209,7 @@ function Fees() {
                             <>
                                 <thead>
                                     <tr>
-                                        <th>Class</th>
+                                        <th>Class & Subject</th>
                                         <th>Fee Type</th>
                                         <th>Amount</th>
                                         <th>Due Date</th>
@@ -205,7 +222,13 @@ function Fees() {
                                     ) : (
                                         feeStructures.map(fs => (
                                             <tr key={fs.id}>
-                                                <td>{fs.Class?.name} {fs.Class?.section}</td>
+                                                <td>
+                                                    {fs.Class?.name} {fs.Class?.section}
+                                                    <br />
+                                                    <small style={{ color: "#6b7280" }}>
+                                                        {fs.Subject ? fs.Subject.name : "All Subjects (Full Class)"}
+                                                    </small>
+                                                </td>
                                                 <td><span className="badge badge-info">{fs.fee_type}</span></td>
                                                 <td>₹{parseFloat(fs.amount).toFixed(2)}</td>
                                                 <td>{new Date(fs.due_date).toLocaleDateString()}</td>
@@ -274,7 +297,10 @@ function Fees() {
                                         <select
                                             className="form-select"
                                             value={structureForm.class_id}
-                                            onChange={e => setStructureForm({ ...structureForm, class_id: e.target.value })}
+                                            onChange={(e) => {
+                                                setStructureForm({ ...structureForm, class_id: e.target.value, subject_id: "" });
+                                                fetchSubjects(e.target.value);
+                                            }}
                                             required
                                         >
                                             <option value="">Select Class</option>
@@ -282,6 +308,22 @@ function Fees() {
                                                 <option key={c.id} value={c.id}>{c.name} {c.section}</option>
                                             ))}
                                         </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label className="form-label">Subject (Optional)</label>
+                                        <select
+                                            className="form-select"
+                                            value={structureForm.subject_id}
+                                            onChange={e => setStructureForm({ ...structureForm, subject_id: e.target.value })}
+                                        >
+                                            <option value="">All Subjects (Full Class/Generic Fee)</option>
+                                            {availableSubjects.map(sub => (
+                                                <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                            ))}
+                                        </select>
+                                        <small style={{ color: "#6b7280", marginTop: "4px", display: "block" }}>
+                                            Leave empty if this fee applies to all students in the class.
+                                        </small>
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label">Fee Type</label>

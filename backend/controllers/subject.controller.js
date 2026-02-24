@@ -47,6 +47,15 @@ exports.getAllSubjects = async (req, res) => {
             whereClause.name = { [Op.like]: `%${search}%` };
         }
 
+        if (req.user.role === "faculty") {
+            const facultyRecord = await Faculty.findOne({ where: { user_id: req.user.id } });
+            if (facultyRecord) {
+                whereClause.faculty_id = facultyRecord.id;
+            } else {
+                return res.status(200).json({ success: true, message: "Subjects retrieved successfully", data: [], count: 0 });
+            }
+        }
+
         const { count, rows } = await Subject.findAndCountAll({
             where: whereClause,
             limit: parseInt(limit),

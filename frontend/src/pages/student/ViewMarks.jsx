@@ -67,14 +67,17 @@ function ViewMarks() {
                                 </tr>
                             ) : (
                                 marks.map((mark) => {
-                                    const passed = mark.marks_obtained >= mark.Exam.passing_marks;
+                                    const passed = parseFloat(mark.marks_obtained) >= parseFloat(mark.Exam.passing_marks);
                                     return (
                                         <tr key={mark.id}>
                                             <td><strong>{mark.Exam?.name}</strong></td>
                                             <td>{mark.Exam?.Subject?.name || "N/A"}</td>
                                             <td>{new Date(mark.Exam?.exam_date).toLocaleDateString()}</td>
-                                            <td><strong>{mark.marks_obtained}</strong></td>
-                                            <td>{mark.Exam?.total_marks}</td>
+                                            <td>
+                                                <strong>{mark.marks_obtained}</strong>
+                                                <span style={{ color: "#6b7280", fontSize: "0.9em" }}> / {mark.Exam?.total_marks}</span>
+                                            </td>
+                                            <td>{mark.Exam?.passing_marks}</td>
                                             <td>
                                                 <span className={`badge badge-${passed ? "success" : "danger"}`}>
                                                     {passed ? "Pass" : "Fail"}

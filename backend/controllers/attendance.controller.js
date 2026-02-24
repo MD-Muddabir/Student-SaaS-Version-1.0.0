@@ -78,9 +78,27 @@ exports.getClassAttendanceByDate = async (req, res) => {
 
         console.log('getClassAttendanceByDate called:', { class_id, subject_id, date, institute_id });
 
-        // Get all students in the class
+        const whereClause = {
+            institute_id,
+            [Op.and]: [
+                {
+                    [Op.or]: [
+                        { admission_date: null },
+                        { admission_date: { [Op.lte]: date } }
+                    ]
+                },
+                {
+                    [Op.or]: [
+                        { leave_date: null },
+                        { leave_date: { [Op.gte]: date } }
+                    ]
+                }
+            ]
+        };
+
+        // Get all students in the class matching the date criteria
         const students = await Student.findAll({
-            where: { institute_id },
+            where: whereClause,
             include: [
                 {
                     model: User,
@@ -239,7 +257,8 @@ exports.getStudentAttendanceReport = async (req, res) => {
                     present_days: presentDays,
                     absent_days: absentDays,
                     late_days: lateDays,
-                    percentage: parseFloat(percentage)
+                    attendance_percentage: parseFloat(percentage),
+                    percentage: parseFloat(percentage) // keep for backwards compatibility if needed
                 }
             }
         });
@@ -445,14 +464,15 @@ exports.deleteAttendance = async (req, res) => {
 
 exports.startSmartSession = async (req, res) => {
     try {
-        const { class_id } = req.body;
+        const { class_id, subject_id } = req.body;
         const institute_id = req.user.institute_id;
         const faculty_id = req.user.id;
 
-        // Check if there's already an active session for this class
+        // Check if there's already an active session for this class AND subject
         const existingSession = await ClassSession.findOne({
             where: {
                 class_id,
+                subject_id: subject_id || null,
                 institute_id,
                 is_active: true,
                 expires_at: { [Op.gt]: new Date() }
@@ -474,6 +494,7 @@ exports.startSmartSession = async (req, res) => {
         const newSession = await ClassSession.create({
             institute_id,
             class_id,
+            subject_id: subject_id || null,
             faculty_id,
             session_token,
             expires_at
@@ -499,17 +520,25 @@ exports.getActiveSession = async (req, res) => {
         const { class_id } = req.params;
         const institute_id = req.user.institute_id;
 
+        const whereClause = {
+            institute_id,
+            is_active: true,
+            expires_at: { [Op.gt]: new Date() }
+        };
+
+        if (class_id === "current") {
+            whereClause.faculty_id = req.user.id;
+        } else {
+            whereClause.class_id = class_id;
+        }
+
         const session = await ClassSession.findOne({
-            where: {
-                class_id,
-                institute_id,
-                is_active: true,
-                expires_at: { [Op.gt]: new Date() }
-            }
+            where: whereClause,
+            order: [['created_at', 'DESC']]
         });
 
         if (!session) {
-            return res.status(404).json({ success: false, message: "No active session found" });
+            return res.status(200).json({ success: true, data: null }); // Returning 200 with null is cleaner for frontend
         }
 
         res.status(200).json({
@@ -552,7 +581,7 @@ exports.endSmartSession = async (req, res) => {
 
 exports.markAttendanceByQR = async (req, res) => {
     try {
-        const { session_token, subject_id, date } = req.body;
+        const { session_token, date } = req.body;
         const student_user_id = req.user.id;
         const institute_id = req.user.institute_id;
 
@@ -577,14 +606,13 @@ exports.markAttendanceByQR = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid or expired session token" });
         }
 
-        // Check if already marked today for this subjective class
-        // Notice: `subject_id` should ideally be sent by frontend, but QR only has class
-        // Default to a null subject or rely on UI to pass it alongside the scan. 
+        // Check if already marked today for this subjective class via the token's subject_id
         const existingAttendance = await Attendance.findOne({
             where: {
                 student_id,
                 institute_id,
                 class_id: session.class_id,
+                subject_id: session.subject_id,
                 date: date || new Date().toISOString().split('T')[0],
                 status: "present"
             }
@@ -599,7 +627,7 @@ exports.markAttendanceByQR = async (req, res) => {
             institute_id,
             student_id,
             class_id: session.class_id,
-            subject_id: subject_id || null, // Optional for smart attendance scope
+            subject_id: session.subject_id,
             date: date || new Date().toISOString().split('T')[0],
             status: "present",
             marked_by: session.faculty_id,

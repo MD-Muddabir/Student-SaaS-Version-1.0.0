@@ -10,6 +10,10 @@ const ClassSession = sequelize.define("ClassSession", {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    subject_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
     faculty_id: {
         type: DataTypes.INTEGER,
         allowNull: false

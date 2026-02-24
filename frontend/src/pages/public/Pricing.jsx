@@ -55,6 +55,7 @@ const Pricing = () => {
                                     <li><span className="check-icon">✓</span> <strong>{plan.faculty_limit || 10}</strong> Faculty Members</li>
                                     <li><span className={plan.feature_attendance ? "check-icon" : "close-icon"}>{plan.feature_attendance ? "✓" : "×"}</span> Attendance System</li>
                                     <li><span className={plan.feature_fees ? "check-icon" : "close-icon"}>{plan.feature_fees ? "✓" : "×"}</span> Fee Management</li>
+                                    <li><span className={plan.feature_exams ? "check-icon" : "close-icon"}>{plan.feature_exams ? "✓" : "×"}</span> Examination Features</li>
                                     <li><span className={plan.feature_reports ? "check-icon" : "close-icon"}>{plan.feature_reports ? "✓" : "×"}</span> Analytics & Reports</li>
                                     <li><span className={plan.feature_parent_portal ? "check-icon" : "close-icon"}>{plan.feature_parent_portal ? "✓" : "×"}</span> Parent Portal Access</li>
                                 </ul>

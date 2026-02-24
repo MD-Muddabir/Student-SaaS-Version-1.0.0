@@ -134,6 +134,18 @@ exports.login = async (req, res) => {
         const user = await authService.loginUser(email, password);
         const token = generateToken(user);
 
+        let features = {};
+        if (user.Institute && user.Institute.Plan) {
+            const plan = user.Institute.Plan;
+            features = {
+                attendance: user.Institute.current_feature_attendance !== 'none' ? user.Institute.current_feature_attendance : plan.feature_attendance,
+                auto_attendance: user.Institute.current_feature_auto_attendance !== null ? user.Institute.current_feature_auto_attendance : plan.feature_auto_attendance,
+                fees: user.Institute.current_feature_fees !== null ? user.Institute.current_feature_fees : plan.feature_fees,
+                reports: user.Institute.current_feature_reports || plan.feature_reports,
+                announcements: user.Institute.current_feature_announcements !== null ? user.Institute.current_feature_announcements : plan.feature_announcements,
+            };
+        }
+
         res.json({
             success: true,
             message: "Login successful",
@@ -144,7 +156,8 @@ exports.login = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 institute_id: user.institute_id,
-                institute_name: user.Institute?.name
+                institute_name: user.Institute?.name,
+                features
             },
         });
     } catch (error) {

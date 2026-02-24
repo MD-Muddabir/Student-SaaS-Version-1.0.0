@@ -164,12 +164,26 @@ exports.getProfile = async (userId) => {
         attributes: ['id', 'name', 'email', 'role', 'institute_id'],
         include: [{
             model: Institute,
-            attributes: ['name', 'status', 'plan_id'],
-            include: [{ model: Plan, attributes: ['id', 'name', 'price'] }] // Include Plan details
+            include: [{ model: Plan }] // Include Plan details
         }]
     });
     if (!user) throw new Error("User not found");
-    return user;
+
+    let features = {};
+    if (user.Institute && user.Institute.Plan) {
+        const plan = user.Institute.Plan;
+        features = {
+            attendance: user.Institute.current_feature_attendance !== 'none' ? user.Institute.current_feature_attendance : plan.feature_attendance,
+            auto_attendance: user.Institute.current_feature_auto_attendance !== null ? user.Institute.current_feature_auto_attendance : plan.feature_auto_attendance,
+            fees: user.Institute.current_feature_fees !== null ? user.Institute.current_feature_fees : plan.feature_fees,
+            reports: user.Institute.current_feature_reports || plan.feature_reports,
+            announcements: user.Institute.current_feature_announcements !== null ? user.Institute.current_feature_announcements : plan.feature_announcements,
+        };
+    }
+
+    const userData = user.toJSON();
+    userData.features = features;
+    return userData;
 };
 
 exports.updateProfile = async (userId, data) => {

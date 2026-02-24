@@ -154,6 +154,20 @@ exports.deleteAdmin = async (req, res) => {
             return res.status(400).json({ success: false, message: "You cannot delete yourself." });
         }
 
+        // Find the FIRST admin created for this institute (lowest ID = primary admin)
+        const firstAdmin = await User.findOne({
+            where: { institute_id, role: 'admin' },
+            order: [['id', 'ASC']]
+        });
+
+        // The primary admin cannot be deleted
+        if (firstAdmin && firstAdmin.id === parseInt(adminIdToDelete)) {
+            return res.status(403).json({
+                success: false,
+                message: "Permission denied. The primary admin cannot be deleted."
+            });
+        }
+
         const admin = await User.findOne({
             where: {
                 id: adminIdToDelete,
@@ -172,6 +186,27 @@ exports.deleteAdmin = async (req, res) => {
 
     } catch (error) {
         console.error("Delete admin error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Check if current admin is the primary admin
+exports.checkIsPrimaryAdmin = async (req, res) => {
+    try {
+        const institute_id = req.user.institute_id;
+        const currentUserId = req.user.id;
+
+        const firstAdmin = await User.findOne({
+            where: { institute_id, role: 'admin' },
+            order: [['id', 'ASC']]
+        });
+
+        res.status(200).json({
+            success: true,
+            is_primary: firstAdmin && firstAdmin.id === currentUserId
+        });
+    } catch (error) {
+        console.error("Check primary admin error:", error);
         res.status(500).json({ success: false, message: error.message });
     }
 };

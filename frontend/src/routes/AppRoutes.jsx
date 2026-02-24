@@ -44,12 +44,15 @@ const Exams = lazy(() => import("../pages/admin/Exams"));
 const Settings = lazy(() => import("../pages/admin/Settings"));
 const Profile = lazy(() => import("../pages/admin/Profile"));
 const ManageAdmins = lazy(() => import("../pages/admin/ManageAdmins")); // Added ManageAdmins
+const AdminSmartAttendance = lazy(() => import("../pages/admin/SmartAttendance"));
 
 // Faculty Pages
 const FacultyDashboard = lazy(() => import("../pages/faculty/Dashboard"));
 const MarkAttendance = lazy(() => import("../pages/faculty/MarkAttendance"));
 const EnterMarks = lazy(() => import("../pages/faculty/EnterMarks"));
 const ViewStudents = lazy(() => import("../pages/faculty/ViewStudents"));
+const FacultySmartAttendance = lazy(() => import("../pages/admin/SmartAttendance")); // Reuse admin page
+const FacultyAnnouncements = lazy(() => import("../pages/faculty/Announcements")); // Added Announcements
 
 // Student Pages
 const StudentDashboard = lazy(() => import("../pages/student/Dashboard"));
@@ -57,6 +60,7 @@ const ViewAttendance = lazy(() => import("../pages/student/ViewAttendance"));
 const ViewMarks = lazy(() => import("../pages/student/ViewMarks"));
 const ViewAnnouncements = lazy(() => import("../pages/student/ViewAnnouncements"));
 const PayFees = lazy(() => import("../pages/student/PayFees"));
+const ScanAttendance = lazy(() => import("../pages/student/ScanAttendance"));
 
 // Common Pages
 const NotFound = lazy(() => import("../pages/common/NotFound"));
@@ -122,6 +126,7 @@ function AppRoutes() {
                 <Route path="classes" element={<Classes />} />
                 <Route path="subjects" element={<Subjects />} />
                 <Route path="attendance" element={<Attendance />} />
+                <Route path="smart-attendance" element={<AdminSmartAttendance />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="fees" element={<Fees />} />
                 <Route path="announcements" element={<Announcements />} />
@@ -142,8 +147,10 @@ function AppRoutes() {
               <Routes>
                 <Route path="dashboard" element={<FacultyDashboard />} />
                 <Route path="attendance" element={<MarkAttendance />} />
+                <Route path="smart-attendance" element={<FacultySmartAttendance />} />
                 <Route path="marks" element={<EnterMarks />} />
                 <Route path="students" element={<ViewStudents />} />
+                <Route path="announcements" element={<FacultyAnnouncements />} />
                 <Route path="profile" element={<Profile />} />
                 <Route path="*" element={<Navigate to="/faculty/dashboard" />} />
               </Routes>
@@ -159,6 +166,7 @@ function AppRoutes() {
               <Routes>
                 <Route path="dashboard" element={<StudentDashboard />} />
                 <Route path="attendance" element={<ViewAttendance />} />
+                <Route path="scan-attendance" element={<ScanAttendance />} />
                 <Route path="marks" element={<ViewMarks />} />
                 <Route path="announcements" element={<ViewAnnouncements />} />
                 <Route path="pay-fees" element={<PayFees />} />

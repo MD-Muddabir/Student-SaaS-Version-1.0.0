@@ -43,6 +43,7 @@ function Plans() {
         feature_auto_attendance: false,
         feature_fees: false,
         feature_announcements: false,
+        feature_exams: false,
         feature_export: false,
         feature_email: false,
         feature_sms: false,
@@ -205,6 +206,9 @@ function Plans() {
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
                                     Fees: <span>{plan.feature_fees ? "✅" : "❌"}</span>
+                                </li>
+                                <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
+                                    Exams: <span>{plan.feature_exams ? "✅" : "❌"}</span>
                                 </li>
                                 <li style={{ marginBottom: "0.3rem", display: "flex", justifyContent: "space-between" }}>
                                     Export Data: <span>{plan.feature_export ? "✅" : "❌"}</span>
@@ -405,6 +409,7 @@ function Plans() {
                                             { key: 'feature_auto_attendance', label: 'Smart Attendance' },
                                             { key: 'feature_fees', label: 'Fees Management' },
                                             { key: 'feature_announcements', label: 'Announcements' },
+                                            { key: 'feature_exams', label: 'Examinations' },
                                             { key: 'feature_export', label: 'Export Data' },
                                             { key: 'feature_email', label: 'Email Notifs' },
                                             { key: 'feature_sms', label: 'SMS Integration' },

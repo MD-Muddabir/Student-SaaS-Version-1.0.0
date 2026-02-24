@@ -4,7 +4,7 @@
  * Implements institute-level data isolation
  */
 
-const { Student, User, Class, Institute, Plan, Subject, StudentSubject, StudentClass } = require("../models");
+const { Student, User, Class, Institute, Plan, Subject, StudentSubject, StudentClass, Faculty } = require("../models");
 const { Op } = require("sequelize");
 const { hashPassword } = require("../utils/hashPassword");
 
@@ -171,6 +171,22 @@ exports.getAllStudents = async (req, res) => {
             classIncludeOptions.where = { id: class_id };
         }
 
+        let subjectIncludeOptions = {
+            model: Subject,
+            attributes: ["id", "name"],
+            through: { attributes: [] }
+        };
+
+        if (req.user.role === 'faculty') {
+            const facultyRecord = await Faculty.findOne({ where: { user_id: req.user.id } });
+            if (facultyRecord) {
+                subjectIncludeOptions.where = { faculty_id: facultyRecord.id };
+                subjectIncludeOptions.required = true;
+            } else {
+                return res.status(200).json({ success: true, message: "Students retrieved successfully", data: [], count: 0 });
+            }
+        }
+
         const { count, rows } = await Student.findAndCountAll({
             where: whereClause,
             limit: parseInt(limit),
@@ -186,11 +202,7 @@ exports.getAllStudents = async (req, res) => {
                 {
                     ...classIncludeOptions
                 },
-                {
-                    model: Subject,
-                    attributes: ["id", "name"],
-                    through: { attributes: [] }
-                }
+                subjectIncludeOptions
             ],
         });
 

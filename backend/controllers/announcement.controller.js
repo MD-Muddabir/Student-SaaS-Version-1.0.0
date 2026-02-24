@@ -3,20 +3,22 @@
  * Handles announcements and notifications
  */
 
-const { Announcement, User } = require("../models");
+const { Op } = require("sequelize");
+const { Announcement, User, Student, Subject } = require("../models");
 
 exports.createAnnouncement = async (req, res) => {
     try {
-        const { title, content, target_audience, priority } = req.body;
+        const { title, content, target_audience, priority, subject_id } = req.body;
         const institute_id = req.user.institute_id;
 
         const announcement = await Announcement.create({
             institute_id,
             title,
             content,
-            target_audience,
+            target_audience: target_audience || 'all',
             priority: priority || "normal",
             created_by: req.user.id,
+            subject_id: subject_id || null,
         });
 
         res.status(201).json({
@@ -44,6 +46,22 @@ exports.getAllAnnouncements = async (req, res) => {
             whereClause.target_audience = target_audience;
         }
 
+        if (req.user.role === 'faculty') {
+            // Faculty can only see announcements they created
+            whereClause.created_by = req.user.id;
+        } else if (req.user.role === 'student') {
+            // Student sees generic announcements or announcements for their subjects
+            const student = await Student.findOne({
+                where: { user_id: req.user.id },
+                include: [{ model: Subject }]
+            });
+            const subjectIds = student && student.Subjects ? student.Subjects.map(s => s.id) : [];
+
+            whereClause.subject_id = {
+                [Op.or]: [null, ...subjectIds]
+            };
+        }
+
         const { count, rows } = await Announcement.findAndCountAll({
             where: whereClause,
             limit: parseInt(limit),
@@ -55,6 +73,10 @@ exports.getAllAnnouncements = async (req, res) => {
                     as: "creator",
                     attributes: ["id", "name", "role"],
                 },
+                {
+                    model: Subject,
+                    attributes: ["id", "name"]
+                }
             ],
         });
 

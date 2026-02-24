@@ -48,8 +48,9 @@ function PayFees() {
     };
 
     const handlePayClick = (fee) => {
+        const balance = Math.max(0, (parseFloat(fee.amount) || 0) - (fee.paid_amount || 0));
         setSelectedFee(fee);
-        setPaymentAmount(fee.amount); // Default to full amount
+        setPaymentAmount(balance.toFixed(2)); // Default to balance amount
         setShowModal(true);
     };
 
@@ -61,6 +62,7 @@ function PayFees() {
 
             await api.post("/fees/pay", {
                 student_id: studentId,
+                fee_structure_id: selectedFee.id,
                 amount: parseFloat(paymentAmount),
                 payment_method: "Credit Card",
                 remarks: `Payment for ${selectedFee.fee_type}`
@@ -78,7 +80,7 @@ function PayFees() {
 
     if (loading) return <div className="dashboard-container">Loading...</div>;
 
-    const safeTotalPaid = totalPaid || 0;
+    const safeTotalPaid = feeStructures.reduce((sum, fee) => sum + (fee.paid_amount || 0), 0);
     const totalRequired = feeStructures.reduce((sum, fee) => sum + (parseFloat(fee.amount) || 0), 0);
     const balanceDue = totalRequired - safeTotalPaid;
 
@@ -149,22 +151,44 @@ function PayFees() {
                                 </tr>
                             ) : (
                                 feeStructures.map((fee) => {
+                                    const feeAmount = parseFloat(fee.amount) || 0;
+                                    const paidAmount = fee.paid_amount || 0;
+                                    const balance = Math.max(0, feeAmount - paidAmount);
+                                    const isPaidOff = balance <= 0;
+
                                     return (
                                         <tr key={fee.id}>
-                                            <td><strong>{fee.fee_type}</strong></td>
+                                            <td>
+                                                <strong>{fee.fee_type}</strong>
+                                                <br />
+                                                <small style={{ color: "#6b7280" }}>
+                                                    {fee.Subject ? `Subject: ${fee.Subject.name}` : "Full Course / General"}
+                                                </small>
+                                                {fee.is_enrolled && <><br /><span className="badge badge-success" style={{ fontSize: "0.7rem" }}>Enrolled</span></>}
+                                            </td>
                                             <td>{fee.description || "-"}</td>
                                             <td>{new Date(fee.due_date).toLocaleDateString()}</td>
-                                            <td>${parseFloat(fee.amount).toFixed(2)}</td>
                                             <td>
-                                                <span className="badge badge-secondary">Assigned</span>
+                                                Total: ${feeAmount.toFixed(2)}<br />
+                                                <small style={{ color: "gray" }}>Paid: ${paidAmount.toFixed(2)}</small><br />
+                                                <strong style={{ color: balance > 0 ? "red" : "green" }}>Due: ${balance.toFixed(2)}</strong>
                                             </td>
                                             <td>
-                                                <button
-                                                    onClick={() => handlePayClick(fee)}
-                                                    className="btn btn-sm btn-primary"
-                                                >
-                                                    Pay Now
-                                                </button>
+                                                <span className={`badge ${isPaidOff ? 'badge-success' : paidAmount > 0 ? 'badge-warning' : 'badge-secondary'}`}>
+                                                    {isPaidOff ? 'Paid' : paidAmount > 0 ? 'Partial' : 'Assigned'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {isPaidOff ? (
+                                                    <span style={{ color: "green", fontWeight: "bold" }}>✓ Fully Paid</span>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handlePayClick(fee)}
+                                                        className="btn btn-sm btn-primary"
+                                                    >
+                                                        Pay Now
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                     );

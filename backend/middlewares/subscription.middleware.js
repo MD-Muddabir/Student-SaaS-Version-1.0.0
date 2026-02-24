@@ -60,12 +60,18 @@ const checkSubscription = async (req, res, next) => {
                 await institute.update({ status: 'expired' });
             }
 
-            return res.status(403).json({
-                success: false,
-                message: "Subscription expired",
-                code: "SUBSCRIPTION_EXPIRED",
-                redirect: "/renew-plan"
-            });
+            // If method is not GET and not requesting payment/renewal, block it
+            const allowedPaths = ['/renew-plan', '/checkout', '/payment', '/plans'];
+            const isAllowedPath = allowedPaths.some(p => req.path.includes(p));
+
+            if (req.method !== 'GET' && !isAllowedPath) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Subscription expired. Your account is in read-only mode. Please renew your plan to perform this action.",
+                    code: "SUBSCRIPTION_EXPIRED",
+                    redirect: "/renew-plan"
+                });
+            }
         }
 
         // Attach latest subscription to request for feature checks

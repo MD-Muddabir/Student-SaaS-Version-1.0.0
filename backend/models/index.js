@@ -88,6 +88,9 @@ Class.hasMany(FeesStructure, { foreignKey: "class_id" });
 FeesStructure.belongsTo(Institute, { foreignKey: "institute_id" });
 Institute.hasMany(FeesStructure, { foreignKey: "institute_id" });
 
+FeesStructure.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(FeesStructure, { foreignKey: "subject_id" });
+
 // Payment Associations
 Payment.belongsTo(Student, { foreignKey: "student_id" });
 Student.hasMany(Payment, { foreignKey: "student_id" });
@@ -101,6 +104,9 @@ User.hasMany(Announcement, { foreignKey: "created_by" });
 
 Announcement.belongsTo(Institute, { foreignKey: "institute_id" });
 Institute.hasMany(Announcement, { foreignKey: "institute_id" });
+
+Announcement.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(Announcement, { foreignKey: "subject_id" });
 
 // Attendance Associations
 Attendance.belongsTo(Student, { foreignKey: "student_id" });
@@ -129,8 +135,11 @@ Institute.hasMany(ClassSession, { foreignKey: "institute_id" });
 ClassSession.belongsTo(Class, { foreignKey: "class_id" });
 Class.hasMany(ClassSession, { foreignKey: "class_id" });
 
-ClassSession.belongsTo(Faculty, { foreignKey: "faculty_id" });
-Faculty.hasMany(ClassSession, { foreignKey: "faculty_id" });
+ClassSession.belongsTo(Subject, { foreignKey: "subject_id" });
+Subject.hasMany(ClassSession, { foreignKey: "subject_id" });
+
+ClassSession.belongsTo(User, { as: "faculty", foreignKey: "faculty_id" });
+User.hasMany(ClassSession, { foreignKey: "faculty_id" });
 
 module.exports = {
     sequelize,

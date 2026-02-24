@@ -8,6 +8,7 @@ const Announcement = sequelize.define("Announcement", {
     target_audience: DataTypes.ENUM('all', 'students', 'faculty'),
     priority: DataTypes.ENUM('normal', 'high', 'urgent'),
     created_by: DataTypes.INTEGER,
+    subject_id: DataTypes.INTEGER, // added subject field
 });
 
 module.exports = Announcement;

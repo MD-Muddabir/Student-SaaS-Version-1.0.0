@@ -11,6 +11,7 @@ const allowRoles = require("../middlewares/role.middleware");
 router.post("/", verifyToken, allowRoles("admin", "faculty"), examController.createExam);
 router.get("/", verifyToken, allowRoles("admin", "faculty"), examController.getAllExams);
 router.post("/marks", verifyToken, allowRoles("admin", "faculty"), examController.enterMarks);
+router.get("/:exam_id/marks", verifyToken, allowRoles("admin", "faculty"), examController.getExamMarks);
 router.get("/results/:student_id", verifyToken, allowRoles("admin", "faculty", "student"), examController.getStudentResults);
 
 module.exports = router;

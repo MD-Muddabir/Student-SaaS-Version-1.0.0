@@ -86,6 +86,10 @@ const Plan = sequelize.define("Plan", {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    feature_exams: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
     feature_export: {
         type: DataTypes.BOOLEAN,
         defaultValue: false

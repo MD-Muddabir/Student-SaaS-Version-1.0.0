@@ -12,7 +12,7 @@ async function createSuperAdmin() {
 
         if (existingAdmin) {
             console.log("⚠ Super Admin already exists");
-            process.exit();
+            return;
         }
 
         const hashedPassword = await bcrypt.hash("owneradmin123", 10);
@@ -28,12 +28,12 @@ async function createSuperAdmin() {
         });
 
         console.log("✅ Super Admin created successfully");
-        process.exit();
+        return;
 
     } catch (error) {
         console.error("❌ Error creating Super Admin:", error.message);
-        process.exit(1);
+        throw error;
     }
 }
 
-createSuperAdmin();
+module.exports = createSuperAdmin;

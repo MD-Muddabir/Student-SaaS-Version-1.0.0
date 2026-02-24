@@ -3,13 +3,15 @@
  * Loads plans from database and displays them professionally
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
 import api from "../../services/api";
 import "./PublicPages.css";
 
 function PricingPage() {
     const navigate = useNavigate();
+    const { user } = useContext(AuthContext);
     const [plans, setPlans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [billingCycle, setBillingCycle] = useState("monthly");
@@ -32,10 +34,14 @@ function PricingPage() {
     };
 
     const handleChoosePlan = (planId) => {
-        // Store selected plan in localStorage
-        localStorage.setItem("selectedPlan", planId);
-        // Redirect to registration
-        navigate("/register");
+        if (user && user.role === 'admin') {
+            navigate(`/checkout?plan_id=${planId}`);
+        } else {
+            // Store selected plan in localStorage
+            localStorage.setItem("selectedPlan", planId);
+            // Redirect to registration
+            navigate("/register");
+        }
     };
 
     const getPlanFeatures = (plan) => {
@@ -45,6 +51,7 @@ function PricingPage() {
         if (plan.feature_faculty) features.push("Faculty management");
         if (plan.feature_attendance) features.push("Attendance tracking");
         if (plan.feature_fees) features.push("Fee management");
+        if (plan.feature_exams) features.push("Examination management");
         if (plan.feature_reports) features.push("Reports & analytics");
         if (plan.feature_sms) features.push("SMS notifications");
         if (plan.feature_email) features.push("Email notifications");

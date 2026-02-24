@@ -188,6 +188,10 @@ const syncDatabase = async () => {
     // Seed plans if not exists
     const seedPlans = require("./seeders/seedPlans");
     await seedPlans();
+
+    // Create super admin if not exists
+    const createSuperAdmin = require("./seeders/createSuperAdmin");
+    await createSuperAdmin();
   } catch (error) {
     console.error("❌ Database error:", error.message);
     console.error("Please ensure MySQL is running and database 'student_saas' exists");
