@@ -7,6 +7,8 @@ import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
+import ThemeToggle from "../../components/ThemeToggle";
+import ThemeStyleToggle from "../../components/ThemeStyleToggle";
 import "./Dashboard.css";
 
 function Students() {
@@ -228,18 +230,20 @@ function Students() {
         <div className="dashboard-container">
             <div className="dashboard-header">
                 <div>
-                    <h1>🎓 Student Management</h1>
+                    <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span style={{ fontSize: '2rem', lineHeight: 1 }}>🎓</span>
+                        Student Management
+                    </h1>
                     <p>Manage students and enrollments</p>
                 </div>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <Link to="/admin/dashboard" className="btn" style={{ backgroundColor: "#6b7280", color: "white" }}>
+                <div className="dashboard-header-right">
+                    <ThemeStyleToggle />
+                    <ThemeToggle />
+                    <Link to="/admin/dashboard" className="btn btn-secondary">
                         ← Back
                     </Link>
                     <button
-                        onClick={() => {
-                            resetForm();
-                            setShowModal(true);
-                        }}
+                        onClick={() => { resetForm(); setShowModal(true); }}
                         className="btn btn-primary"
                     >
                         + Add Student

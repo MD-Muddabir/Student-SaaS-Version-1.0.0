@@ -7,6 +7,8 @@ import { useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
+import ThemeToggle from "../../components/ThemeToggle";
+import ThemeStyleToggle from "../../components/ThemeStyleToggle";
 import "./Dashboard.css";
 
 function AdminDashboard() {
@@ -150,9 +152,13 @@ function AdminDashboard() {
                     <h1>Admin Dashboard</h1>
                     <p>Welcome back! {planDetails ? `Current Plan: ${planDetails.plan.name}` : "Here's what's happening today."}</p>
                 </div>
-                <button onClick={logout} className="btn btn-danger">
-                    Logout
-                </button>
+                <div className="dashboard-header-right">
+                    <ThemeStyleToggle />
+                    <ThemeToggle />
+                    <button onClick={logout} className="btn btn-danger">
+                        Logout
+                    </button>
+                </div>
             </div>
 
             <div className="stats-grid">
