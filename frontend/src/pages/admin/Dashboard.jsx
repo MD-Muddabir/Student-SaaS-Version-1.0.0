@@ -211,8 +211,9 @@ function AdminDashboard() {
                     <ActionCard path="/admin/subjects" icon="📖" title="Manage Subjects" featureKey="subjects" />
 
                     <ActionCard path="/admin/attendance" icon="📋" title="Manage Attendance" featureKey="attendance" />
-                    <ActionCard path="/admin/smart-attendance" icon="⚡" title="Smart Attendance" featureKey="auto_attendance" />
+                    <ActionCard path="/admin/smart-attendance" icon="📸" title="Scan Student QR" featureKey="auto_attendance" />
                     <ActionCard path="/admin/reports" icon="📊" title="Reports & Analytics" featureKey="reports" />
+                    <ActionCard path="/admin/expenses" icon="💸" title="Finances & Transport" />
                     <ActionCard path="/admin/fees" icon="💰" title="Fee Management" featureKey="fees" />
                     <ActionCard path="/admin/exams" icon="📝" title="Manage Exams" />
                     <ActionCard path="/admin/announcements" icon="📢" title="Announcements" featureKey="announcements" />

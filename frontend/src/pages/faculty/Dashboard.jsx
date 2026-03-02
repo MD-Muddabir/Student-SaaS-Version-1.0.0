@@ -40,7 +40,7 @@ function FacultyDashboard() {
                         <ActionCard path="/faculty/attendance" icon="📋" title="Mark Attendance" />
                     )}
                     {user?.features?.auto_attendance && (
-                        <ActionCard path="/faculty/smart-attendance" icon="⚡" title="Smart Attendance" />
+                        <ActionCard path="/faculty/smart-attendance" icon="📸" title="Scan Student QR" />
                     )}
                     <ActionCard path="/faculty/marks" icon="📝" title="Enter Marks" />
                     {user?.features?.announcements && (

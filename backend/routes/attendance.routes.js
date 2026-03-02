@@ -36,6 +36,7 @@ router.post("/start-session", checkFeatureAccess("feature_auto_attendance"), all
 router.post("/end-session/:id", checkFeatureAccess("feature_auto_attendance"), allowRoles("admin", "faculty"), attendanceController.endSmartSession);
 router.get("/active-session/:class_id", checkFeatureAccess("feature_auto_attendance"), allowRoles("admin", "faculty"), attendanceController.getActiveSession);
 router.post("/mark-by-qr", checkFeatureAccess("feature_auto_attendance"), allowRoles("student"), attendanceController.markAttendanceByQR);
+router.post("/mark-student-qr", checkFeatureAccess("feature_auto_attendance"), allowRoles("admin", "faculty"), attendanceController.markAttendanceByStudentQR);
 
 // Attendance dashboard stats
 router.get("/dashboard", allowRoles("admin", "faculty"), attendanceController.getAttendanceDashboard);
