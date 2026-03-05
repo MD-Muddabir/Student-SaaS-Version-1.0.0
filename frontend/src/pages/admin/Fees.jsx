@@ -706,40 +706,57 @@ function Fees() {
             {/* ═══ DISCOUNT MODAL ═══ */}
             {discountingFee && (
                 <div className="modal-overlay">
-                    <div className="modal-content" style={{ maxWidth: '400px', width: '95%' }}>
-                        <h2 style={{ marginBottom: '1.25rem' }}>🎉 Give Discount</h2>
-                        <div style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
-                            Student: <strong>{discountingFee.Student?.User?.name}</strong><br />
-                            Original Fee: <b>₹{parseFloat(discountingFee.original_amount).toLocaleString()}</b>
-                        </div>
-                        <form onSubmit={handleDiscount}>
-                            <div className="form-group">
-                                <label className="form-label">Discount Percentage (%)</label>
-                                <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                    <input type="number" className="form-input" min="0" max="100" step="0.01"
-                                        value={discountForm.percentage}
-                                        onChange={e => {
-                                            const pct = e.target.value;
-                                            const orig = parseFloat(discountingFee.original_amount) || 0;
-                                            const amt = pct ? ((orig * parseFloat(pct)) / 100).toFixed(2) : '';
-                                            setDiscountForm({ ...discountForm, percentage: pct, amount: amt });
-                                        }} autoFocus />
-                                    <span>%</span>
+                    <div className="modal-content" style={{ maxWidth: '460px', width: '95%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
+                            <div style={{
+                                width: '52px', height: '52px', borderRadius: '50%',
+                                background: 'linear-gradient(135deg,#a855f7,#7c3aed)',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                color: '#fff', fontWeight: '800', fontSize: '1.2rem', flexShrink: 0
+                            }}>
+                                🎉
+                            </div>
+                            <div>
+                                <h2 style={{ margin: 0 }}>Give Discount</h2>
+                                <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                                    {discountingFee.Student?.User?.name} · Fee: ₹{parseFloat(discountingFee.original_amount).toLocaleString()}
                                 </div>
                             </div>
-                            <div className="form-group">
-                                <label className="form-label">Discount Amount (₹)</label>
-                                <input type="number" className="form-input" required min="1" max={discountingFee.due_amount}
-                                    value={discountForm.amount}
-                                    onChange={e => {
-                                        const amt = e.target.value;
-                                        const orig = parseFloat(discountingFee.original_amount) || 0;
-                                        const pct = (orig > 0 && amt) ? ((parseFloat(amt) / orig) * 100).toFixed(2) : '';
-                                        setDiscountForm({ ...discountForm, amount: amt, percentage: pct });
-                                    }} />
+                        </div>
+
+                        <form onSubmit={handleDiscount}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                                <div className="form-group" style={{ margin: 0 }}>
+                                    <label className="form-label">Discount (%)</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <input type="number" className="form-input" min="0" max="100" step="0.01"
+                                            value={discountForm.percentage} placeholder="e.g. 10"
+                                            style={{ paddingRight: '2rem', fontWeight: '700', fontSize: '1.1rem' }}
+                                            onChange={e => {
+                                                const pct = e.target.value;
+                                                const orig = parseFloat(discountingFee.original_amount) || 0;
+                                                const amt = pct ? ((orig * parseFloat(pct)) / 100).toFixed(2) : '';
+                                                setDiscountForm({ ...discountForm, percentage: pct, amount: amt });
+                                            }} autoFocus />
+                                        <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontWeight: '600' }}>%</span>
+                                    </div>
+                                </div>
+                                <div className="form-group" style={{ margin: 0 }}>
+                                    <label className="form-label">Amount (₹) *</label>
+                                    <input type="number" className="form-input" required min="1" max={discountingFee.due_amount} step="0.01"
+                                        value={discountForm.amount} placeholder="e.g. 500"
+                                        style={{ fontWeight: '700', fontSize: '1.1rem' }}
+                                        onChange={e => {
+                                            const amt = e.target.value;
+                                            const orig = parseFloat(discountingFee.original_amount) || 0;
+                                            const pct = (orig > 0 && amt) ? ((parseFloat(amt) / orig) * 100).toFixed(2) : '';
+                                            setDiscountForm({ ...discountForm, amount: amt, percentage: pct });
+                                        }} />
+                                </div>
                             </div>
+
                             <div className="form-group">
-                                <label className="form-label">Reason</label>
+                                <label className="form-label">Reason for Discount *</label>
                                 <select className="form-select" required value={discountForm.reason} onChange={e => setDiscountForm({ ...discountForm, reason: e.target.value })}>
                                     <option value="">Select Reason...</option>
                                     <option>Scholarship</option>
@@ -748,10 +765,30 @@ function Fees() {
                                     <option>Sibling Discount</option>
                                 </select>
                             </div>
+
+                            {/* Amount preview */}
+                            <div style={{
+                                background: 'linear-gradient(135deg,rgba(168,85,247,0.1),rgba(168,85,247,0.05))',
+                                border: '1px solid rgba(168,85,247,0.3)', borderRadius: '10px',
+                                padding: '0.75rem 1rem', marginBottom: '1rem',
+                                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                            }}>
+                                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>New Final Fee:</span>
+                                <span style={{ fontWeight: '800', color: '#a855f7', fontSize: '1.3rem' }}>
+                                    ₹{Math.max(0, parseFloat(discountingFee.original_amount) - (parseFloat(discountForm.amount) || 0)).toLocaleString()}
+                                </span>
+                            </div>
+
                             <div className="modal-actions">
-                                <button type="button" className="btn btn-secondary" onClick={() => setDiscountingFee(null)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary" style={{ background: 'linear-gradient(135deg,#a855f7,#7c3aed)', border: 'none' }}>
-                                    Apply Discount
+                                <button type="button" className="btn btn-secondary" onClick={() => setDiscountingFee(null)}>
+                                    Cancel
+                                </button>
+                                <button type="submit" style={{
+                                    padding: '0.65rem 1.5rem', borderRadius: '10px', border: 'none',
+                                    background: 'linear-gradient(135deg,#a855f7,#7c3aed)',
+                                    color: '#fff', fontWeight: '700', fontSize: '0.95rem', cursor: 'pointer'
+                                }}>
+                                    🎉 Apply Discount
                                 </button>
                             </div>
                         </form>
