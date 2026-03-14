@@ -25,6 +25,20 @@ export default function Home() {
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
   }, []);
+  useEffect(() => {
+    const p = window.location.pathname;
+    if (p === '/pricing' || p === '/renew-plan') {
+      setTimeout(() => {
+        const el = document.getElementById('pricing');
+        if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+      }, 300);
+    } else if (p === '/features') {
+      setTimeout(() => {
+        const el = document.getElementById('features');
+        if (el) window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+      }, 300);
+    }
+  }, []);
 
   return (
     <div className='landing-root'>

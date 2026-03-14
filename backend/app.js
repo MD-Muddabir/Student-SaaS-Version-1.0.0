@@ -102,6 +102,7 @@ app.use("/api/assignments", require("./routes/assignment.routes"));
 app.use("/api/admin/public-page", require("./routes/publicPage.routes"));
 app.use("/api/admin/enquiries", require("./routes/enquiry.routes"));
 app.use("/api/public", require("./routes/publicSite.routes"));
+app.use("/api/leads", require("./routes/lead.routes"));
 
 // ============================================
 // 404 HANDLER

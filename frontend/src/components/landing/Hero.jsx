@@ -8,6 +8,15 @@ export default function Hero() {
   const countPassRate = useCountUp(96, 2000, true);
   const countCities = useCountUp(48, 2000, true);
 
+  // Phase 3 Fix: "View Pricing" scrolls to #pricing section on same page
+  const scrollToPricing = (e) => {
+    e.preventDefault();
+    const el = document.getElementById('pricing');
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+    }
+  };
+
   return (
     <>
       <section className='lp-hero' id='home'>
@@ -32,9 +41,10 @@ export default function Hero() {
             <Link to='/register' className='lp-btn-primary' style={{ padding: '14px 32px', fontSize: '15px' }}>
               Start Free Trial →
             </Link>
-            <Link to='/pricing' className='lp-btn-ghost'>
+            {/* Phase 3: Now scrolls to #pricing on same page */}
+            <a href='#pricing' className='lp-btn-ghost' onClick={scrollToPricing}>
               View Pricing
-            </Link>
+            </a>
           </div>
 
           <div className='lp-trust reveal' style={{ transitionDelay: '0.4s' }}>

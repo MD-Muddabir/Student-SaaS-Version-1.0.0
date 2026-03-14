@@ -47,6 +47,8 @@ const InstituteGalleryPhoto = require("./instituteGalleryPhoto");
 const InstituteReview = require("./instituteReview");
 const PublicEnquiry = require("./publicEnquiry");
 
+const Lead = require("./lead");
+
 // Associations
 
 Plan.hasMany(Subscription, { foreignKey: "plan_id" });
@@ -401,4 +403,5 @@ module.exports = {
     InstituteGalleryPhoto,
     InstituteReview,
     PublicEnquiry,
+    Lead,
 };

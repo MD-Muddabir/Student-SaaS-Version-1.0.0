@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const NAV_LINKS = [
   { label: 'Home', href: '#home' },
@@ -9,7 +9,20 @@ const NAV_LINKS = [
   { label: 'FAQ', href: '#faq' }
 ];
 
-function MobileDrawer({ onClose, scrollTo }) {
+// Returns dashboard path based on the stored user role
+function getDashboardPath(role) {
+  const map = {
+    super_admin: '/superadmin/dashboard',
+    admin: '/admin/dashboard',
+    manager: '/admin/dashboard',
+    faculty: '/faculty/dashboard',
+    student: '/student/dashboard',
+    parent: '/parent/dashboard',
+  };
+  return map[role] || '/admin/dashboard';
+}
+
+function MobileDrawer({ onClose, scrollTo, onLoginClick }) {
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -28,7 +41,13 @@ function MobileDrawer({ onClose, scrollTo }) {
           ))}
         </ul>
         <div className='lp-drawer-btns' style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <Link to='/login' className='lp-btn-ghost'>Login</Link>
+          <button
+            className='lp-btn-ghost'
+            onClick={onLoginClick}
+            style={{ border: '1px solid var(--lp-border)', cursor: 'pointer', width: '100%' }}
+          >
+            Login / Dashboard
+          </button>
           <Link to='/register' className='lp-btn-primary'>Get Started Free</Link>
         </div>
       </aside>
@@ -40,6 +59,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive] = useState('home');
   const [drawer, setDrawer] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => {
@@ -59,11 +79,24 @@ export default function Navbar() {
   const scrollTo = (href) => {
     const id = href.replace('#', '');
     const el = document.getElementById(id);
-    if(el) {
-      window.scrollTo({
-        top: el.offsetTop - 80,
-        behavior: 'smooth'
-      });
+    if (el) {
+      window.scrollTo({ top: el.offsetTop - 80, behavior: 'smooth' });
+    }
+    setDrawer(false);
+  };
+
+  // Phase 1 Fix: Smart Login — if already logged in redirect to role dashboard, else go to /login
+  const handleLoginClick = () => {
+    try {
+      const token = localStorage.getItem('token');
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      if (token && user?.role) {
+        navigate(getDashboardPath(user.role));
+      } else {
+        navigate('/login');
+      }
+    } catch {
+      navigate('/login');
     }
     setDrawer(false);
   };
@@ -77,8 +110,8 @@ export default function Navbar() {
       <ul className='lp-nav-links'>
         {NAV_LINKS.map(l => (
           <li key={l.label}>
-            <a 
-              className={active === l.href.slice(1) ? 'active' : ''} 
+            <a
+              className={active === l.href.slice(1) ? 'active' : ''}
               onClick={() => scrollTo(l.href)}
             >
               {l.label}
@@ -88,7 +121,14 @@ export default function Navbar() {
       </ul>
 
       <div className='lp-nav-actions'>
-        <Link to='/login' className='lp-btn-ghost'>Login</Link>
+        {/* Phase 1: Smart Login — routes to dashboard if logged in, else /login */}
+        <button
+          className='lp-btn-ghost'
+          onClick={handleLoginClick}
+          style={{ border: 'none', cursor: 'pointer', background: 'none', font: 'inherit', fontSize: '15px', fontWeight: '500' }}
+        >
+          Login
+        </button>
         <Link to='/register' className='lp-btn-primary'>Start Free Trial</Link>
       </div>
 
@@ -96,7 +136,13 @@ export default function Navbar() {
         <span/><span/><span/>
       </button>
 
-      {drawer && <MobileDrawer onClose={() => setDrawer(false)} scrollTo={scrollTo} />}
+      {drawer && (
+        <MobileDrawer
+          onClose={() => setDrawer(false)}
+          scrollTo={scrollTo}
+          onLoginClick={handleLoginClick}
+        />
+      )}
     </nav>
   );
 }

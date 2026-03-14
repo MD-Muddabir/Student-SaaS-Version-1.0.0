@@ -33,6 +33,7 @@ const Analytics = lazy(() => import("../pages/superadmin/Analytics"));
 const Revenue = lazy(() => import("../pages/superadmin/Revenue"));
 const SuperAdminSettings = lazy(() => import("../pages/superadmin/Settings"));
 const SuperAdminExpenses = lazy(() => import("../pages/superadmin/Expenses"));
+const LandingPage = lazy(() => import("../pages/superadmin/LandingPage")); // Added Landing Page Management
 
 // Admin Pages
 const AdminDashboard = lazy(() => import("../pages/admin/Dashboard"));
@@ -111,8 +112,8 @@ function AppRoutes() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/renew-plan" element={<Pricing />} /> {/* Renewal Flow */}
+        <Route path="/pricing" element={<Home />} />
+        <Route path="/renew-plan" element={<Home />} /> {/* Renewal Flow */}
         <Route path="/checkout" element={<PaymentAndCheckout />} /> {/* Payment Flow */}
         <Route path="/features" element={<Home />} />
         <Route path="/about" element={<Home />} />
@@ -139,6 +140,7 @@ function AppRoutes() {
                 <Route path="revenue" element={<Revenue />} />
                 <Route path="expenses" element={<SuperAdminExpenses />} />
                 <Route path="settings" element={<SuperAdminSettings />} />
+                <Route path="landing-page" element={<LandingPage />} />
                 <Route path="*" element={<Navigate to="/superadmin/dashboard" />} />
               </Routes>
             </ProtectedRoute>
