@@ -1,10 +1,13 @@
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import "./ChatApp.css";
+
+/** Detect small/mobile screen */
+const isMobileScreen = () => window.innerWidth < 768;
 
 function ChatApp() {
     const { user } = useContext(AuthContext);
@@ -297,6 +300,15 @@ function ChatApp() {
             markAsRead(room.id);
         }
         fetchRooms();
+        // On mobile: hide participants panel by default
+        if (isMobileScreen()) setShowParticipants(false);
+    };
+
+    /** Mobile: go back to room list */
+    const handleMobileBack = () => {
+        setActiveRoom(null);
+        setMessages([]);
+        setParticipants([]);
     };
 
     // ─── Direct Chats for Student ───
@@ -359,7 +371,7 @@ function ChatApp() {
 
 
     return (
-        <div className="chat-container">
+        <div className={`chat-container${activeRoom ? ' room-open' : ''}`}>
 
             {/* ── Sidebar: Rooms ─────────────────────────────── */}
             <div className="chat-sidebar">
@@ -521,8 +533,19 @@ function ChatApp() {
                 {activeRoom ? (
                     <>
                         <div className="chat-header">
-                            <div>
-                                <h3 style={{ margin: 0 }}>{getRoomLabel(activeRoom)}</h3>
+                            {/* Mobile back button — goes back to room list */}
+                            <button
+                                className="chat-mobile-back"
+                                onClick={handleMobileBack}
+                                style={{ display: 'none' }}  /* shown via CSS @media */
+                                aria-label="Back to rooms"
+                            >
+                                ← Back
+                            </button>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <h3 style={{ margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {getRoomLabel(activeRoom)}
+                                </h3>
                                 <p style={{ margin: "2px 0 0", fontSize: "0.82rem", color: "var(--text-secondary)" }}>
                                     {getRoomSubLabel(activeRoom)}
                                     <span className={`badge badge-${activeRoom.type === 'direct' ? 'primary' : 'info'}`} style={{ marginLeft: 8, fontSize: "0.7rem" }}>
@@ -530,18 +553,18 @@ function ChatApp() {
                                     </span>
                                 </p>
                             </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
                                 {isReadOnly && (
                                     <span className="monitor-badge">👁️ Monitor Mode</span>
                                 )}
-                                {/* Toggle Participants Button */}
+                                {/* Toggle Participants Button — hidden on mobile */}
                                 {activeRoom.type !== "direct" && user?.role !== "student" && user?.role !== "parent" && (
                                     <button
                                         className="btn btn-secondary"
-                                        style={{ padding: "6px 14px", fontSize: "0.82rem" }}
+                                        style={{ padding: "6px 12px", fontSize: "0.82rem" }}
                                         onClick={() => setShowParticipants(!showParticipants)}
                                     >
-                                        👥 Members
+                                        👥
                                     </button>
                                 )}
                             </div>

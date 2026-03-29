@@ -10,6 +10,7 @@ const map = {
   student: { appId: "com.studentsaas.student", appName: "StudentSaaS-Student" },
   parent: { appId: "com.studentsaas.parent", appName: "StudentSaaS-Parent" },
   faculty: { appId: "com.studentsaas.faculty", appName: "StudentSaaS-Faculty" },
+  universal: { appId: "com.studentsaas.universal", appName: "StudentSaaS-Universal" },
 };
 
 const patch = map[variant];

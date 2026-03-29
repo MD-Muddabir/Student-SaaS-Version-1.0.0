@@ -1,0 +1,439 @@
+/* ========================================
+   FACULTY MOBILE CSS
+   Faculty Dashboard Specific Styles
+   Extends mobile-base.css
+   ======================================== */
+
+/* ─── FACULTY HEADER ─── */
+.dashboard-container .dashboard-header h1 {
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #10b981, #059669);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── FACULTY ACTION GRID ─── */
+.quick-actions .action-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 359px) {
+  .quick-actions .action-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+.action-card {
+  padding: 14px 8px !important;
+  border-radius: 12px !important;
+  min-height: 78px;
+  border: 1.5px solid rgba(16,185,129,0.1);
+}
+.action-card:hover {
+  border-color: rgba(16,185,129,0.3) !important;
+  box-shadow: 0 4px 14px rgba(16,185,129,0.15) !important;
+}
+
+/* ─── MARK ATTENDANCE PAGE ─── */
+.mark-att-header {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 16px;
+  padding: 16px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+.mark-att-header h2 { color: #fff; font-size: 17px; margin: 0 0 4px; }
+.mark-att-header p  { color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; }
+
+/* Class/subject selector mobile */
+.class-subject-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.class-subject-select select {
+  font-size: 15px;
+  padding: 12px 40px 12px 14px;
+}
+
+/* Student list for marking attendance */
+.student-mark-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-mark-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.student-mark-card.selected-present { border-color: #10b981; background: rgba(16,185,129,0.04); }
+.student-mark-card.selected-absent  { border-color: #ef4444; background: rgba(239,68,68,0.04); }
+
+.student-mark-info { flex: 1; }
+.student-mark-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.student-mark-roll { font-size: 12px; color: #888; margin-top: 1px; }
+
+.attendance-toggle {
+  display: flex;
+  gap: 6px;
+}
+.att-toggle-btn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 34px;
+}
+.att-toggle-btn.present {
+  border-color: #10b981;
+  color: #10b981;
+  background: transparent;
+}
+.att-toggle-btn.present.active {
+  background: #10b981;
+  color: #fff;
+}
+.att-toggle-btn.absent {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: transparent;
+}
+.att-toggle-btn.absent.active {
+  background: #ef4444;
+  color: #fff;
+}
+.att-toggle-btn:active { transform: scale(0.94); }
+
+/* Bulk action bar (sticky bottom) */
+.bulk-action-bar {
+  position: fixed;
+  bottom: calc(62px + env(safe-area-inset-bottom));
+  left: 8px;
+  right: 8px;
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+.bulk-action-bar .bulk-count  { font-size: 14px; font-weight: 600; }
+.bulk-action-bar .bulk-btns   { display: flex; gap: 8px; }
+.bulk-action-bar .bulk-btn {
+  padding: 7px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  min-height: 36px;
+}
+.bulk-btn.all-present { background: #10b981; color: #fff; }
+.bulk-btn.all-absent  { background: #ef4444; color: #fff; }
+.bulk-btn.submit-att  { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+
+/* ─── VIEW ATTENDANCE (FACULTY) ─── */
+.faculty-att-filter {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 12px;
+}
+.faculty-att-filter::-webkit-scrollbar { display: none; }
+
+/* ─── ENTER MARKS PAGE ─── */
+.enter-marks-header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 16px;
+  color: #fff;
+  margin-bottom: 14px;
+}
+.enter-marks-header h2 { color: #fff; font-size: 17px; margin: 0 0 4px; }
+.enter-marks-header p  { color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; }
+
+.marks-student-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.marks-student-name { font-size: 14px; font-weight: 700; color: #1a1a1a; flex: 1; }
+.marks-student-roll { font-size: 11px; color: #888; }
+.marks-input {
+  width: 70px;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  font-size: 15px;
+  font-weight: 700;
+}
+.marks-input:focus { border-color: #667eea; outline: none; }
+
+/* ─── VIEW STUDENTS ─── */
+.view-students-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.view-students-card:active { transform: scale(0.98); }
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.student-info { flex: 1; }
+.student-name { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.student-roll { font-size: 12px; color: #888; }
+.student-class { font-size: 11px; color: #667eea; font-weight: 600; margin-top: 1px; }
+
+/* ─── SCHEDULE PAGE ─── */
+.schedule-day-header {
+  font-size: 14px;
+  font-weight: 700;
+  color: #667eea;
+  padding: 8px 0 4px;
+  border-bottom: 1.5px solid rgba(102,126,234,0.2);
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+.schedule-item {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-left: 3px solid #667eea;
+}
+.schedule-time    { font-size: 12px; color: #888; min-width: 55px; font-weight: 600; }
+.schedule-subject { font-size: 14px; font-weight: 700; color: #1a1a1a; }
+.schedule-class   { font-size: 12px; color: #888; }
+.schedule-room    {
+  margin-left: auto;
+  font-size: 11px;
+  background: rgba(102,126,234,0.1);
+  color: #667eea;
+  padding: 3px 8px;
+  border-radius: 8px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* ─── ANNOUNCEMENTS / NOTES ─── */
+.faculty-notice-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform 0.15s;
+  border-top: 3px solid #10b981;
+}
+.faculty-notice-card:active { transform: scale(0.98); }
+.faculty-notice-title   { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.faculty-notice-class   { font-size: 12px; color: #10b981; font-weight: 600; margin-top: 2px; }
+.faculty-notice-content { font-size: 13px; color: #555; margin-top: 6px; line-height: 1.5; }
+.faculty-notice-date    { font-size: 11px; color: #888; margin-top: 6px; }
+
+/* ─── SCAN FACULTY QR ─── */
+.faculty-qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px;
+  gap: 16px;
+  text-align: center;
+}
+.faculty-qr-code {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* Submit attendance sticky button */
+.submit-attendance-sticky {
+  position: fixed;
+  bottom: calc(70px + env(safe-area-inset-bottom));
+  left: 16px;
+  right: 16px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(16,185,129,0.4);
+  z-index: 1001;
+  transition: transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.submit-attendance-sticky:active { transform: scale(0.97); }
+
+/* ─── FACULTY SEARCH ─── */
+.faculty-search {
+  position: relative;
+  margin-bottom: 12px;
+}
+.faculty-search input {
+  padding-left: 44px;
+}
+.faculty-search::before {
+  content: '🔍';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── DARK MODE FACULTY ─── */
+html.dark-mode .student-mark-card,
+html.dark-mode .marks-student-card,
+html.dark-mode .view-students-card,
+html.dark-mode .schedule-item,
+html.dark-mode .faculty-notice-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark-mode .student-mark-name,
+html.dark-mode .marks-student-name,
+html.dark-mode .student-name,
+html.dark-mode .schedule-subject,
+html.dark-mode .faculty-notice-title { color: #f1f5f9 !important; }
+
+html.dark-mode .student-mark-roll,
+html.dark-mode .marks-student-roll,
+html.dark-mode .student-roll,
+html.dark-mode .student-class.faculty,
+html.dark-mode .schedule-time,
+html.dark-mode .schedule-class,
+html.dark-mode .faculty-notice-date,
+html.dark-mode .faculty-notice-content { color: #64748b !important; }
+
+html.dark-mode .marks-input {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+html.dark-mode .marks-input:focus { border-color: #818cf8 !important; }
+
+html.dark-mode .schedule-room {
+  background: rgba(129,140,248,0.15) !important;
+  color: #818cf8 !important;
+}
+
+html.dark-mode .mark-att-header {
+  background: linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.3)) !important;
+  border: 1px solid rgba(16,185,129,0.3) !important;
+}
+
+html.dark-mode .enter-marks-header {
+  background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3)) !important;
+  border: 1px solid rgba(102,126,234,0.3) !important;
+}
+
+html.dark-mode .schedule-day-header {
+  border-bottom-color: rgba(129,140,248,0.2) !important;
+  color: #818cf8 !important;
+}
+
+html.dark-mode .bulk-action-bar {
+  background: #1e293b !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+}
+
+html.dark-mode .student-avatar {
+  background: linear-gradient(135deg, #818cf8, #a78bfa) !important;
+}
+
+html.dark-mode .action-card {
+  border-color: rgba(52, 211, 153, 0.15) !important;
+}
+html.dark-mode .action-card:hover {
+  border-color: rgba(52,211,153,0.3) !important;
+}
+
+/* ─── PRO THEME FACULTY ─── */
+html.theme-pro .student-mark-card,
+html.theme-pro .marks-student-card,
+html.theme-pro .view-students-card,
+html.theme-pro .schedule-item,
+html.theme-pro .faculty-notice-card {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #f1f5f9 !important;
+  backdrop-filter: blur(10px) !important;
+}
+html.theme-pro .student-mark-name,
+html.theme-pro .marks-student-name,
+html.theme-pro .student-name,
+html.theme-pro .schedule-subject,
+html.theme-pro .faculty-notice-title { color: #fff !important; }
+html.theme-pro .student-mark-roll,
+html.theme-pro .marks-student-roll,
+html.theme-pro .schedule-time,
+html.theme-pro .faculty-notice-content { color: rgba(255,255,255,0.5) !important; }
+
+html.theme-pro .schedule-room {
+  background: rgba(196,181,253,0.15) !important;
+  color: #c4b5fd !important;
+}
+
+html.theme-pro .faculty-notice-class { color: #34d399 !important; }
+html.theme-pro .student-class { color: #34d399 !important; }

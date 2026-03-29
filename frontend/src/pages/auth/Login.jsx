@@ -44,9 +44,15 @@ function Login() {
     } catch {
       return;
     }
-    if (isMobileApp && MOBILE_ALLOWED_ROLE && userObj.role !== MOBILE_ALLOWED_ROLE) {
-      logout();
-      return;
+    if (isMobileApp) {
+      if (MOBILE_ALLOWED_ROLE && userObj.role !== MOBILE_ALLOWED_ROLE) {
+        logout();
+        return;
+      }
+      if (!MOBILE_ALLOWED_ROLE && !["student", "parent", "faculty"].includes(userObj.role)) {
+        logout();
+        return;
+      }
     }
     if (userObj) {
       switch (userObj.role) {
@@ -74,12 +80,17 @@ function Login() {
     try {
       await login(formData);
       const user = JSON.parse(localStorage.getItem("user"));
-      if (isMobileApp && MOBILE_ALLOWED_ROLE && user.role !== MOBILE_ALLOWED_ROLE) {
-        logout();
-        setError(
-          `This app is for ${MOBILE_ALLOWED_ROLE === "faculty" ? "faculty" : MOBILE_ALLOWED_ROLE} accounts only.`
-        );
-        return;
+      if (isMobileApp) {
+        if (MOBILE_ALLOWED_ROLE && user.role !== MOBILE_ALLOWED_ROLE) {
+          logout();
+          setError(`This app is for ${MOBILE_ALLOWED_ROLE === "faculty" ? "faculty" : MOBILE_ALLOWED_ROLE} accounts only.`);
+          return;
+        }
+        if (!MOBILE_ALLOWED_ROLE && !["student", "parent", "faculty"].includes(user.role)) {
+          logout();
+          setError("Admin and Manager dashboards are not available on the mobile application.");
+          return;
+        }
       }
       switch (user.role) {
         case "super_admin": navigate("/superadmin/dashboard"); break;

@@ -304,43 +304,81 @@ function ParentDashboard() {
                                         </div>
                                     )}
 
-                                    {/* Phase 7: Attendance table with In/Out timing (using created_at as proxy) */}
+                                    {/* Phase 7: Attendance table with In/Out timing */}
                                     {attendance?.records?.length > 0 ? (
-                                        <table className="data-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Subject / Class</th>
-                                                    <th>In Time</th>
-                                                    <th>Status</th>
-                                                    <th>Marked By</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
+                                        <>
+                                            {/* Desktop table */}
+                                            <table className="data-table parent-att-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Subject / Class</th>
+                                                        <th>In Time</th>
+                                                        <th>Status</th>
+                                                        <th>Marked By</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {attendance.records.map(record => (
+                                                        <tr key={record.id}>
+                                                            <td style={{ fontWeight: 600 }}>{new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                                                            <td>{record.Subject?.name || record.Class?.name || 'All Subjects'}</td>
+                                                            <td style={{ color: '#10b981', fontWeight: 600 }}>
+                                                                {record.time_in ? record.time_in.substring(0, 5) : '—'}
+                                                                {record.is_late && <span style={{ marginLeft: '0.4rem', color: '#f59e0b', fontSize: '0.75rem' }}>+{record.late_by_minutes}m late</span>}
+                                                            </td>
+                                                            <td>
+                                                                <span className={`status-badge status-${record.status}`}>
+                                                                    {record.status?.replace('_', ' ')}
+                                                                </span>
+                                                            </td>
+                                                            <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                                                {record.marked_by_type === 'biometric' ? '🔐 Biometric' :
+                                                                    record.marked_by_type === 'mobile_otp' ? '📱 OTP' :
+                                                                        record.marked_by_type === 'qr_code' ? '📸 QR Scan' : '📝 Manual'}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            {/* Mobile card list */}
+                                            <div className="parent-att-cards mobile-table-card card-stagger">
                                                 {attendance.records.map(record => (
-                                                    <tr key={record.id}>
-                                                        <td style={{ fontWeight: 600 }}>{new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
-                                                        <td>{record.Subject?.name || record.Class?.name || 'All Subjects'}</td>
-                                                        <td style={{ color: '#10b981', fontWeight: 600 }}>
-                                                            {record.time_in ? record.time_in.substring(0, 5) : '—'}
-                                                            {record.is_late && <span style={{ marginLeft: '0.4rem', color: '#f59e0b', fontSize: '0.75rem' }}>+{record.late_by_minutes}m late</span>}
-                                                        </td>
-                                                        <td>
+                                                    <div key={record.id} className={`parent-att-card ${record.status || ''}`}>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div className="parent-att-date">
+                                                                {new Date(record.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                            </div>
+                                                            <div className="parent-att-subject">
+                                                                {record.Subject?.name || record.Class?.name || 'All Subjects'}
+                                                            </div>
+                                                            <div className="parent-att-marked">
+                                                                {record.marked_by_type === 'biometric' ? '🔐 Bio' :
+                                                                    record.marked_by_type === 'mobile_otp' ? '📱 OTP' :
+                                                                        record.marked_by_type === 'qr_code' ? '📸 QR' : '📝 Manual'}
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                                                             <span className={`status-badge status-${record.status}`}>
                                                                 {record.status?.replace('_', ' ')}
                                                             </span>
-                                                        </td>
-                                                        <td style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                                            {record.marked_by_type === 'biometric' ? '🔐 Biometric' :
-                                                                record.marked_by_type === 'mobile_otp' ? '📱 OTP' :
-                                                                    record.marked_by_type === 'qr_code' ? '📸 QR Scan' : '📝 Manual'}
-                                                        </td>
-                                                    </tr>
+                                                            {record.time_in && (
+                                                                <div className="parent-att-time">{record.time_in.substring(0, 5)}</div>
+                                                            )}
+                                                            {record.is_late && (
+                                                                <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700 }}>+{record.late_by_minutes}m late</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 ))}
-                                            </tbody>
-                                        </table>
+                                            </div>
+                                        </>
                                     ) : (
-                                        <p>No attendance records found for {selectedStudent?.User?.name}.</p>
+                                        <div className="empty-state-mobile">
+                                            <div className="empty-icon">📋</div>
+                                            <div className="empty-title">No Records</div>
+                                            <div className="empty-desc">No attendance records found for {selectedStudent?.User?.name}.</div>
+                                        </div>
                                     )}
                                 </div>
                             )}
@@ -411,51 +449,83 @@ function ParentDashboard() {
                                     </div>
 
                                     {fees?.length > 0 ? (
-                                        <table className="data-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Fee Type</th>
-                                                    <th>Original</th>
-                                                    <th>Discount</th>
-                                                    <th>Final</th>
-                                                    <th>Paid</th>
-                                                    <th>Due</th>
-                                                    <th>Due Date</th>
-                                                    <th>Reminder</th>
-                                                    <th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {fees.map(fee => (
-                                                    <tr key={fee.id}>
-                                                        <td><strong>{fee.FeesStructure?.fee_type || 'Fee'}</strong></td>
-                                                        <td>₹{parseFloat(fee.original_amount || 0).toLocaleString()}</td>
-                                                        <td style={{ color: '#a855f7' }}>-₹{parseFloat(fee.discount_amount || 0).toLocaleString()}</td>
-                                                        <td><strong>₹{parseFloat(fee.final_amount || 0).toLocaleString()}</strong></td>
-                                                        <td style={{ color: '#10b981' }}>₹{parseFloat(fee.paid_amount || 0).toLocaleString()}</td>
-                                                        <td style={{ color: '#ef4444', fontWeight: 700 }}>₹{parseFloat(fee.due_amount || 0).toLocaleString()}</td>
-                                                        <td>{fee.FeesStructure?.due_date ? new Date(fee.FeesStructure.due_date).toLocaleDateString() : '—'}</td>
-                                                        <td>
-                                                            {fee.reminder_date ? (
-                                                                <span style={{
-                                                                    color: fee.reminder_date <= TODAY_STR ? '#ef4444' : '#f59e0b',
-                                                                    fontWeight: 700
-                                                                }}>
-                                                                    {new Date(fee.reminder_date).toLocaleDateString()}
+                                        <>
+                                            {/* Desktop table */}
+                                            <table className="data-table parent-fee-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Fee Type</th>
+                                                        <th>Original</th>
+                                                        <th>Discount</th>
+                                                        <th>Final</th>
+                                                        <th>Paid</th>
+                                                        <th>Due</th>
+                                                        <th>Due Date</th>
+                                                        <th>Reminder</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {fees.map(fee => (
+                                                        <tr key={fee.id}>
+                                                            <td><strong>{fee.FeesStructure?.fee_type || 'Fee'}</strong></td>
+                                                            <td>₹{parseFloat(fee.original_amount || 0).toLocaleString()}</td>
+                                                            <td style={{ color: '#a855f7' }}>-₹{parseFloat(fee.discount_amount || 0).toLocaleString()}</td>
+                                                            <td><strong>₹{parseFloat(fee.final_amount || 0).toLocaleString()}</strong></td>
+                                                            <td style={{ color: '#10b981' }}>₹{parseFloat(fee.paid_amount || 0).toLocaleString()}</td>
+                                                            <td style={{ color: '#ef4444', fontWeight: 700 }}>₹{parseFloat(fee.due_amount || 0).toLocaleString()}</td>
+                                                            <td>{fee.FeesStructure?.due_date ? new Date(fee.FeesStructure.due_date).toLocaleDateString() : '—'}</td>
+                                                            <td>
+                                                                {fee.reminder_date ? (
+                                                                    <span style={{ color: fee.reminder_date <= TODAY_STR ? '#ef4444' : '#f59e0b', fontWeight: 700 }}>
+                                                                        {new Date(fee.reminder_date).toLocaleDateString()}
+                                                                    </span>
+                                                                ) : '—'}
+                                                            </td>
+                                                            <td>
+                                                                <span className={`status-badge status-${fee.status === 'paid' ? 'paid' : fee.status === 'partial' ? 'partial' : 'pending'}`}>
+                                                                    {fee.status}
                                                                 </span>
-                                                            ) : '—'}
-                                                        </td>
-                                                        <td>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                            {/* Mobile fee cards */}
+                                            <div className="parent-fee-cards mobile-table-card card-stagger">
+                                                {fees.map(fee => (
+                                                    <div key={fee.id} className={`fee-mobile-card ${fee.status}`}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                                            <div className="fee-type">{fee.FeesStructure?.fee_type || 'Fee'}</div>
                                                             <span className={`status-badge status-${fee.status === 'paid' ? 'paid' : fee.status === 'partial' ? 'partial' : 'pending'}`}>
                                                                 {fee.status}
                                                             </span>
-                                                        </td>
-                                                    </tr>
+                                                        </div>
+                                                        <div className="fee-amounts">
+                                                            <div className="fee-amount-item">Final: <strong>₹{parseFloat(fee.final_amount || 0).toLocaleString()}</strong></div>
+                                                            <div className="fee-amount-item" style={{ color: '#10b981' }}>Paid: <strong>₹{parseFloat(fee.paid_amount || 0).toLocaleString()}</strong></div>
+                                                            <div className="fee-amount-item" style={{ color: '#ef4444' }}>Due: <strong>₹{parseFloat(fee.due_amount || 0).toLocaleString()}</strong></div>
+                                                        </div>
+                                                        {fee.FeesStructure?.due_date && (
+                                                            <div style={{ fontSize: '12px', color: '#888', marginTop: '6px' }}>
+                                                                📅 Due: {new Date(fee.FeesStructure.due_date).toLocaleDateString()}
+                                                                {fee.reminder_date && (
+                                                                    <span style={{ marginLeft: '8px', color: fee.reminder_date <= TODAY_STR ? '#ef4444' : '#f59e0b', fontWeight: 600 }}>
+                                                                        ⏰ Reminder: {new Date(fee.reminder_date).toLocaleDateString()}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 ))}
-                                            </tbody>
-                                        </table>
+                                            </div>
+                                        </>
                                     ) : (
-                                        <p>No fee records found for {selectedStudent?.User?.name}.</p>
+                                        <div className="empty-state-mobile">
+                                            <div className="empty-icon">💳</div>
+                                            <div className="empty-title">No Fee Records</div>
+                                            <div className="empty-desc">No fee records found for {selectedStudent?.User?.name}.</div>
+                                        </div>
                                     )}
                                 </div>
                             )}

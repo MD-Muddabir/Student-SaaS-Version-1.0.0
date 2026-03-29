@@ -1,0 +1,318 @@
+/* ========================================
+   PARENT MOBILE CSS
+   Parent Dashboard Specific Styles
+   Extends mobile-base.css
+   ======================================== */
+
+/* ─── PARENT DASHBOARD CONTAINER ─── */
+.parent-dashboard-container {
+  padding: 14px !important;
+  animation: fadeInParent 0.35s ease-out;
+}
+
+/* ─── HEADER ─── */
+.parent-dashboard-container .dashboard-header {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+.parent-dashboard-container .dashboard-header h1 {
+  font-size: 20px !important;
+  margin: 0 0 3px !important;
+  font-weight: 800;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.parent-dashboard-container .dashboard-header p {
+  font-size: 13px !important;
+  margin: 0 !important;
+}
+
+/* ─── STUDENT SELECTOR — horizontal scroll ─── */
+.student-selector {
+  display: flex !important;
+  flex-direction: row !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  gap: 10px !important;
+  padding-bottom: 4px !important;
+  margin-bottom: 14px !important;
+}
+.student-selector::-webkit-scrollbar { display: none; }
+
+.student-card-btn {
+  min-width: 160px !important;
+  max-width: 200px !important;
+  flex-shrink: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  gap: 8px !important;
+}
+.student-card-btn span.icon {
+  font-size: 1.6rem !important;
+  padding: 6px !important;
+  border-radius: 8px !important;
+}
+.student-card-btn .details h3 {
+  font-size: 13px !important;
+  margin: 0 0 2px !important;
+}
+.student-card-btn .details small {
+  font-size: 11px !important;
+}
+
+/* ─── TABS — SCROLLABLE PILLS ─── */
+.tabs-container {
+  margin-bottom: 12px !important;
+  gap: 6px !important;
+  padding: 2px 0 8px !important;
+}
+
+/* ─── STATS GRID — 2 col ─── */
+.parent-dashboard-container .stats-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+
+.parent-dashboard-container .stat-card {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+  gap: 8px !important;
+}
+
+.parent-dashboard-container .stat-icon {
+  width: 44px !important;
+  height: 44px !important;
+  font-size: 1.4rem !important;
+  border-radius: 10px !important;
+}
+
+.parent-dashboard-container .stat-card .info h3 {
+  font-size: 1.35rem !important;
+  line-height: 1.1 !important;
+}
+.parent-dashboard-container .stat-card .info p {
+  font-size: 11px !important;
+}
+.parent-dashboard-container .stat-card .info small {
+  font-size: 11px !important;
+}
+
+/* ─── QUICK ACTIONS (parent) ─── */
+.quick-actions-parent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid;
+  background: rgba(255,255,255,0.8);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+.quick-action-btn:active { transform: scale(0.97); }
+
+/* ─── REMINDER ALERT ─── */
+.fee-reminder-alert {
+  background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(245,158,11,0.05));
+  border: 1.5px solid rgba(245,158,11,0.4);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.fee-reminder-alert .alert-icon { font-size: 1.2rem; flex-shrink: 0; }
+.fee-reminder-alert .alert-text {
+  font-size: 13px;
+  color: #d97706;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+/* ─── ATTENDANCE TAB MOBILE ─── */
+/* Hide data-table on mobile, show mobile cards */
+.parent-att-table.data-table { display: none !important; }
+.parent-att-cards { display: block !important; }
+
+.parent-att-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.parent-att-card.present { border-left: 4px solid #10b981; }
+.parent-att-card.absent  { border-left: 4px solid #ef4444; }
+.parent-att-card.holiday { border-left: 4px solid #3b82f6; }
+.parent-att-card.late    { border-left: 4px solid #f59e0b; }
+
+.parent-att-date     { font-size: 13px; color: #888; margin-bottom: 2px; }
+.parent-att-subject  { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.parent-att-time     { font-size: 11px; color: #888; }
+.parent-att-marked   { font-size: 11px; color: #888; }
+
+/* ─── FEES TAB MOBILE ─── */
+/* Hide fee table, show fee cards */
+.parent-fee-table.data-table { display: none !important; }
+.parent-fee-cards { display: block !important; }
+
+/* Fee summary — horizontal scroll row */
+.parent-fee-summary {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 14px;
+}
+.parent-fee-summary::-webkit-scrollbar { display: none; }
+.parent-fee-summary > div {
+  flex-shrink: 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  min-width: 120px;
+  text-align: center;
+}
+.parent-fee-summary .amount {
+  font-size: 1.2rem;
+  font-weight: 800;
+  display: block;
+}
+.parent-fee-summary .label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+
+/* ─── MARKS TAB MOBILE ─── */
+.parent-marks-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.parent-marks-exam   { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.parent-marks-subj   { font-size: 12px; color: #667eea; font-weight: 600; }
+.parent-marks-date   { font-size: 11px; color: #888; }
+.parent-marks-score  { font-size: 1.3rem; font-weight: 800; color: #4f46e5; text-align: right; }
+.parent-marks-result { font-size: 12px; font-weight: 700; }
+.parent-marks-result.pass { color: #10b981; }
+.parent-marks-result.fail { color: #ef4444; }
+
+/* ─── DASHBOARD CARD ─── */
+.parent-dashboard-container .dashboard-card {
+  padding: 14px !important;
+  border-radius: 14px !important;
+  margin-bottom: 12px;
+}
+.parent-dashboard-container .dashboard-card h3 {
+  font-size: 15px !important;
+  margin-bottom: 12px !important;
+}
+.parent-dashboard-container .dashboard-card p {
+  font-size: 13px !important;
+}
+
+/* ─── DETAIL LOADING STATE ─── */
+.parent-detail-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+}
+.parent-detail-loading .spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(79,70,229,0.2);
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin-ptr 0.9s linear infinite;
+}
+
+/* ─── DARK MODE PARENT ─── */
+html.dark-mode .parent-att-card,
+html.dark-mode .parent-marks-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+html.dark-mode .parent-att-date,
+html.dark-mode .parent-att-time,
+html.dark-mode .parent-att-marked,
+html.dark-mode .parent-marks-date { color: #64748b !important; }
+html.dark-mode .parent-att-subject,
+html.dark-mode .parent-marks-exam  { color: #f1f5f9 !important; }
+
+html.dark-mode .fee-reminder-alert {
+  background: rgba(245,158,11,0.08) !important;
+  border-color: rgba(245,158,11,0.3) !important;
+}
+
+html.dark-mode .student-card-btn {
+  box-shadow: none !important;
+}
+
+html.dark-mode .quick-action-btn {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark-mode .parent-fee-summary > div {
+  background: var(--fee-bg, rgba(255,255,255,0.05)) !important;
+}
+
+/* ─── PRO THEME PARENT ─── */
+html.theme-pro .parent-att-card,
+html.theme-pro .parent-marks-card {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #f1f5f9 !important;
+  backdrop-filter: blur(10px) !important;
+}
+html.theme-pro .parent-att-subject,
+html.theme-pro .parent-marks-exam  { color: #fff !important; }
+html.theme-pro .parent-att-date,
+html.theme-pro .parent-marks-date  { color: rgba(255,255,255,0.5) !important; }
+
+html.theme-pro .fee-reminder-alert {
+  background: rgba(245,158,11,0.1) !important;
+  border-color: rgba(245,158,11,0.3) !important;
+}
+
+html.theme-pro .quick-action-btn {
+  background: rgba(255,255,255,0.06) !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+  backdrop-filter: blur(8px) !important;
+}

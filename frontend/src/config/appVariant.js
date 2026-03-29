@@ -4,7 +4,7 @@
  */
 const raw = (import.meta.env.VITE_APP_VARIANT || "web").toLowerCase();
 
-export const APP_VARIANT = ["student", "parent", "faculty"].includes(raw) ? raw : "web";
+export const APP_VARIANT = ["student", "parent", "faculty", "universal"].includes(raw) ? raw : "web";
 
 export const isWebApp = APP_VARIANT === "web";
 

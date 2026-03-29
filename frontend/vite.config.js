@@ -10,6 +10,7 @@ function resolveMobileShell(variant) {
     if (v === 'parent') return path.resolve(__dirname, 'src/routes/MobileParentRoutes.jsx')
     if (v === 'faculty') return path.resolve(__dirname, 'src/routes/MobileFacultyRoutes.jsx')
     if (v === 'student') return path.resolve(__dirname, 'src/routes/MobileStudentRoutes.jsx')
+    if (v === 'universal') return path.resolve(__dirname, 'src/routes/WebAppRoutes.jsx')
     return path.resolve(__dirname, 'src/routes/MobileShellEmpty.jsx')
 }
 

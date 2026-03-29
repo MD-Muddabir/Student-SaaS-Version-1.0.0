@@ -1,0 +1,361 @@
+/* ========================================
+   STUDENT MOBILE CSS
+   Student Dashboard Specific Styles
+   Extends mobile-base.css
+   ======================================== */
+
+/* ─── STUDENT HEADER ─── */
+.dashboard-container .dashboard-header h1 {
+  font-size: 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── STUDENT ACTION GRID — 3-column on mobile ─── */
+.quick-actions .action-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 359px) {
+  .quick-actions .action-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+.action-card {
+  padding: 14px 8px !important;
+  gap: 6px !important;
+  border-radius: 12px !important;
+  min-height: 80px;
+  border: 1.5px solid rgba(102,126,234,0.1);
+}
+
+.action-card:hover {
+  border-color: rgba(102,126,234,0.3);
+  box-shadow: 0 4px 14px rgba(102,126,234,0.15) !important;
+}
+
+.action-icon { font-size: 1.6rem !important; }
+.action-title { font-size: 11px !important; }
+
+/* ─── BADGE ON ACTION CARD ─── */
+.action-card .notification-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: #ef4444;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(239,68,68,0.5);
+  animation: badge-pop 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes badge-pop {
+  from { transform: scale(0); }
+  to   { transform: scale(1); }
+}
+
+/* ─── STUDENT STATS OVERVIEW ─── */
+.stats-grid .stat-card {
+  padding: 12px !important;
+  border-radius: 12px !important;
+  gap: 10px !important;
+}
+.stat-content h3 {
+  font-size: 1.4rem !important;
+}
+.stat-icon {
+  width: 46px !important;
+  height: 46px !important;
+  font-size: 1.5rem !important;
+}
+
+/* Attendance stat card — color coded */
+.stat-card.stat-good  { border-left: 4px solid #10b981; }
+.stat-card.stat-warn  { border-left: 4px solid #f59e0b; }
+.stat-card.stat-bad   { border-left: 4px solid #ef4444; }
+
+/* ─── ATTENDANCE VIEW — MOBILE CARD LIST ─── */
+/* Hide default table, show card list */
+.student-attendance-table { display: none !important; }
+.student-attendance-list  { display: block !important; }
+
+.att-mobile-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-left: 4px solid #667eea;
+  cursor: default;
+  transition: transform 0.15s;
+}
+.att-mobile-card:active { transform: scale(0.98); }
+
+.att-mobile-card.present { border-left-color: #10b981; }
+.att-mobile-card.absent  { border-left-color: #ef4444; }
+.att-mobile-card.holiday { border-left-color: #3b82f6; }
+.att-mobile-card.half_day { border-left-color: #f59e0b; }
+
+.att-card-left  { flex: 1; }
+.att-card-date  { font-size: 13px; color: #888; margin-bottom: 2px; }
+.att-card-subject { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+.att-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.att-card-time  { font-size: 11px; color: #888; }
+
+/* ─── SUBJECT FILTER CHIPS ─── */
+.subject-filter {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+}
+.subject-filter::-webkit-scrollbar { display: none; }
+
+/* ─── MARKS / RESULTS ─── */
+.marks-mobile-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.marks-info { flex: 1; }
+.marks-exam-name  { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.marks-subject    { font-size: 12px; color: #667eea; font-weight: 600; margin-top: 2px; }
+.marks-date       { font-size: 11px; color: #888; margin-top: 2px; }
+
+.marks-score {
+  text-align: right;
+  flex-shrink: 0;
+}
+.marks-score .score  { font-size: 1.3rem; font-weight: 800; color: #4f46e5; }
+.marks-score .result {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 3px;
+}
+.marks-score .result.pass { background: #d1fae5; color: #065f46; }
+.marks-score .result.fail { background: #fee2e2; color: #991b1b; }
+
+/* ─── NOTES ─── */
+.student-notes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ─── ASSIGNMENTS ─── */
+.student-asgn-filter {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 12px;
+}
+.student-asgn-filter::-webkit-scrollbar { display: none; }
+
+/* ─── PAY FEES ─── */
+.fee-pay-header {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  padding: 18px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+.fee-pay-header h2 { color: #fff; font-size: 18px; margin: 0 0 6px; }
+.fee-pay-header p  { color: rgba(255,255,255,0.8); font-size: 13px; margin: 0; }
+
+/* ─── SCAN QR ─── */
+.qr-scan-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 16px;
+}
+.qr-code-display {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ─── TIMETABLE ─── */
+.student-timetable-days {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin-bottom: 12px;
+}
+.student-timetable-days::-webkit-scrollbar { display: none; }
+
+.day-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.day-chip.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 3px 10px rgba(102,126,234,0.35);
+}
+.day-chip.today {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+/* ─── ANNOUNCEMENTS ─── */
+.announcement-mobile-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border-left: 4px solid #667eea;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.announcement-mobile-card:active { transform: scale(0.98); }
+.announcement-mobile-card.unread { border-left-color: #ef4444; }
+.announcement-mobile-card .ann-title   { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+.announcement-mobile-card .ann-content { font-size: 13px; color: #555; margin-top: 4px; line-height: 1.5; }
+.announcement-mobile-card .ann-date    { font-size: 11px; color: #888; margin-top: 6px; }
+.announcement-mobile-card .unread-dot {
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ─── BACK BUTTON ─── */
+.mobile-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #667eea;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 8px;
+}
+.mobile-back-btn:active { opacity: 0.7; }
+
+/* ─── ANNOUNCEMENTS CARD ─── */
+.recent-ann-card {
+  background: linear-gradient(135deg, rgba(102,126,234,0.05), rgba(118,75,162,0.03));
+  border: 1.5px solid rgba(102,126,234,0.15);
+  border-radius: 14px;
+  padding: 14px;
+  margin-top: 14px;
+}
+.recent-ann-card .card-header h3 { font-size: 15px; }
+
+/* ─── DARK MODE STUDENT ─── */
+html.dark-mode .att-mobile-card,
+html.dark-mode .marks-mobile-card,
+html.dark-mode .announcement-mobile-card {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+html.dark-mode .att-card-date    { color: #64748b !important; }
+html.dark-mode .att-card-subject { color: #e2e8f0 !important; }
+html.dark-mode .att-card-time    { color: #64748b !important; }
+html.dark-mode .marks-exam-name  { color: #f1f5f9 !important; }
+html.dark-mode .marks-date       { color: #64748b !important; }
+html.dark-mode .ann-title        { color: #f1f5f9 !important; }
+html.dark-mode .ann-content      { color: #94a3b8 !important; }
+html.dark-mode .ann-date         { color: #64748b !important; }
+
+html.dark-mode .action-card {
+  border-color: rgba(129,140,248,0.15) !important;
+}
+html.dark-mode .action-card:hover {
+  border-color: rgba(129,140,248,0.3) !important;
+}
+html.dark-mode .day-chip {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+html.dark-mode .day-chip.active {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+html.dark-mode .day-chip.today {
+  border-color: #818cf8 !important;
+  color: #818cf8 !important;
+}
+
+html.dark-mode .fee-pay-header {
+  background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3)) !important;
+  border: 1px solid rgba(102,126,234,0.3) !important;
+}
+
+html.dark-mode .recent-ann-card {
+  background: rgba(102,126,234,0.06) !important;
+  border-color: rgba(102,126,234,0.2) !important;
+}
+
+/* ─── PRO THEME STUDENT ─── */
+html.theme-pro .att-mobile-card,
+html.theme-pro .marks-mobile-card,
+html.theme-pro .announcement-mobile-card {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  color: #f1f5f9 !important;
+  backdrop-filter: blur(10px) !important;
+}
+html.theme-pro .att-card-subject,
+html.theme-pro .marks-exam-name,
+html.theme-pro .ann-title { color: #fff !important; }
+html.theme-pro .att-card-date,
+html.theme-pro .ann-content,
+html.theme-pro .marks-date { color: rgba(255,255,255,0.5) !important; }
+html.theme-pro .mobile-back-btn { color: #c4b5fd !important; }
