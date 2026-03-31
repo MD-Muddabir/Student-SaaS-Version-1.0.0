@@ -36,6 +36,7 @@ const TOGGLE_MODULES = [
     { val: 'transport', label: 'Transport Fees', icon: '🚌', desc: 'Bus routes & transport fees' },
     { val: 'parents', label: 'Manage Parents', icon: '👨‍👩‍👧', desc: 'View & manage parent records' },
     { val: 'biometric', label: 'Bio-Metric', icon: '🔐', desc: 'Biometric device management' },
+    { val: 'assignments', label: 'Assignments', icon: '📄', desc: 'View & manage assignments' },
 ];
 
 // ── Helpers ─────────────────────────────────────────────

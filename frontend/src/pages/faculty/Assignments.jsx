@@ -99,9 +99,13 @@ export default function FacultyAssignments() {
     const fetchSubjects = async (classId) => {
         if (!classId) return setSubjects([]);
         try {
-            const r = await api.get(`/classes/${classId}/subjects`);
+            // Use the correct endpoint that accepts class_id as a query param
+            const r = await api.get(`/subjects?class_id=${classId}`);
             setSubjects(r.data.data || r.data.subjects || []);
-        } catch { setSubjects([]); }
+        } catch (err) {
+            console.error('Failed to load subjects:', err);
+            setSubjects([]);
+        }
     };
 
     const handleFormChange = (e) => {

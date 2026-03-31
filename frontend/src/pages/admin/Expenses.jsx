@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, forwardRef, useImperativeHandle, useContext } from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle, useContext } from "react";
 import { Link } from "react-router-dom";
 import ThemeSelector from "../../components/ThemeSelector";
 import api from "../../services/api";
@@ -97,7 +97,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                         labels: sortedData.map(d => d.month),
                         datasets: [
                             {
-                                label: 'Income (â‚¹)',
+                                label: 'Income (₹)',
                                 data: sortedData.map(d => d.income),
                                 borderColor: '#10b981',
                                 backgroundColor: 'rgba(16,185,129,0.1)',
@@ -105,7 +105,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                 tension: 0.4
                             },
                             {
-                                label: 'Expenses (â‚¹)',
+                                label: 'Expenses (₹)',
                                 data: sortedData.map(d => d.expense),
                                 borderColor: '#ef4444',
                                 backgroundColor: 'rgba(239,68,68,0.1)',
@@ -224,7 +224,7 @@ const AdminExpenses = forwardRef((props, ref) => {
             doc.text("Expenses", 14, startY);
             startY += 8;
             autoTable(doc, {
-                head: [["Date", "Title", "Category", "Amount (â‚¹)", "Description"]],
+                head: [["Date", "Title", "Category", "Amount (₹)", "Description"]],
                 body: expenses.map(e => [
                     new Date(e.date).toLocaleDateString(), e.title, e.category,
                     parseFloat(e.amount).toLocaleString(), e.description || "-"
@@ -238,7 +238,7 @@ const AdminExpenses = forwardRef((props, ref) => {
     const handleExportExcel = () => {
         if (!expenses.length) { alert("No data to export."); return; }
         const ws = XLSX.utils.aoa_to_sheet([
-            ["Date", "Title", "Category", "Amount (â‚¹)", "Description"],
+            ["Date", "Title", "Category", "Amount (₹)", "Description"],
             ...expenses.map(e => [new Date(e.date).toLocaleDateString(), e.title, e.category, parseFloat(e.amount), e.description || ""])
         ]);
         const wb = XLSX.utils.book_new();
@@ -271,7 +271,7 @@ const AdminExpenses = forwardRef((props, ref) => {
             {!props.isReportMode && (
                 <div className="dashboard-header">
                     <div>
-                        <h1>ðŸ’¸ Finances & Transport</h1>
+                        <h1>💸 Finances & Transport</h1>
                         <p>Manage expenses, track income, and configure transport routes</p>
                     </div>
                     <div className="dashboard-header-right" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -279,15 +279,15 @@ const AdminExpenses = forwardRef((props, ref) => {
                             <>
                                 <button onClick={handleExportPDF} className="btn btn-primary"
                                     style={{ backgroundColor: "#ef4444", borderColor: "#ef4444", padding: '0.5rem 1rem' }}>
-                                    ðŸ“„ PDF
+                                    📄 PDF
                                 </button>
                                 <button onClick={handleExportExcel} className="btn btn-primary"
                                     style={{ backgroundColor: "#10b981", borderColor: "#10b981", padding: '0.5rem 1rem' }}>
-                                    ðŸ“Š Excel
+                                    📊 Excel
                                 </button>
                                 {canCreate && (
                                     <button className="animated-btn primary" onClick={() => setShowAddModal(true)}>
-                                        <span className="icon">âž•</span> Add Expense
+                                        <span className="icon">➕</span> Add Expense
                                     </button>
                                 )}
                             </>
@@ -295,7 +295,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                         {activeTab === "transport" && hasTransportPerm && (
                             <button className="animated-btn primary"
                                 onClick={() => { setEditingTransport(null); setTransportForm({ route_name: "", fee_amount: "" }); setTransportError(""); setShowTransportModal(true); }}>
-                                <span className="icon">âž•</span> Add Route
+                                <span className="icon">➕</span> Add Route
                             </button>
                         )}
                         <ThemeSelector />
@@ -308,12 +308,12 @@ const AdminExpenses = forwardRef((props, ref) => {
             <div style={{ display: 'flex', gap: '4px', marginBottom: '0', borderBottom: '2px solid var(--border-color, #e5e7eb)', paddingBottom: 0 }}>
                 {hasExpensePerm && (
                     <button style={tabStyle(activeTab === "expenses")} onClick={() => setActiveTab("expenses")}>
-                        ðŸ’¸ Expenses
+                        💸 Expenses
                     </button>
                 )}
                 {(hasTransportPerm || isAdmin) && (
                     <button style={tabStyle(activeTab === "transport")} onClick={() => setActiveTab("transport")}>
-                        ðŸšŒ Transport Fees
+                        🚌 Transport Fees
                     </button>
                 )}
             </div>
@@ -328,7 +328,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                         backgroundColor: 'var(--card-bg, rgba(255,255,255,0.05))',
                         border: '1px solid var(--border-color, rgba(255,255,255,0.1))'
                     }}>
-                        <span style={{ fontSize: '1.2rem' }}>ðŸ“…</span>
+                        <span style={{ fontSize: '1.2rem' }}>📅</span>
                         <strong style={{ color: 'var(--text-primary)' }}>Period:</strong>
                         <select className="form-select"
                             style={{ padding: '0.6rem 1rem', minWidth: '180px', margin: 0, borderRadius: '8px', border: '1px solid var(--border-color)' }}
@@ -355,22 +355,22 @@ const AdminExpenses = forwardRef((props, ref) => {
                     <div className="stats-grid" style={{ gridTemplateColumns: isAdmin ? "repeat(4, 1fr)" : "repeat(2, 1fr)" }}>
                         {isAdmin && (
                             <div className="stat-card">
-                                <div className="stat-icon" style={{ backgroundColor: "rgba(16,185,129,0.1)", color: "#10b981" }}>ðŸ’µ</div>
+                                <div className="stat-icon" style={{ backgroundColor: "rgba(16,185,129,0.1)", color: "#10b981" }}>💵</div>
                                 <div className="stat-content">
-                                    <h3>â‚¹{stats.totalIncome?.toLocaleString() || 0}</h3>
+                                    <h3>₹{stats.totalIncome?.toLocaleString() || 0}</h3>
                                     <p>Monthly Income</p>
                                 </div>
                             </div>
                         )}
                         <div className="stat-card">
-                            <div className="stat-icon" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#ef4444" }}>ðŸ”¥</div>
+                            <div className="stat-icon" style={{ backgroundColor: "rgba(239,68,68,0.1)", color: "#ef4444" }}>🔥</div>
                             <div className="stat-content">
-                                <h3>â‚¹{stats.totalExpense?.toLocaleString() || 0}</h3>
+                                <h3>₹{stats.totalExpense?.toLocaleString() || 0}</h3>
                                 <p>Total Expenses</p>
                             </div>
                         </div>
                         <div className="stat-card">
-                            <div className="stat-icon" style={{ backgroundColor: "rgba(245,158,11,0.1)", color: "#f59e0b" }}>ðŸ“</div>
+                            <div className="stat-icon" style={{ backgroundColor: "rgba(245,158,11,0.1)", color: "#f59e0b" }}>📋</div>
                             <div className="stat-content">
                                 <h3>{expenses.length}</h3>
                                 <p>Entries</p>
@@ -380,17 +380,17 @@ const AdminExpenses = forwardRef((props, ref) => {
                             <div className="stat-card">
                                 <div className="stat-icon"
                                     style={{ backgroundColor: stats.profitLoss >= 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", color: stats.profitLoss >= 0 ? "#10b981" : "#ef4444" }}>
-                                    ðŸ“ˆ
+                                    📈
                                 </div>
                                 <div className="stat-content">
-                                    <h3>â‚¹{stats.profitLoss?.toLocaleString() || 0}</h3>
+                                    <h3>₹{stats.profitLoss?.toLocaleString() || 0}</h3>
                                     <p>Profit / Loss</p>
                                 </div>
                             </div>
                         )}
                     </div>
 
-                    {/* Chart â€” only admins see income vs expenses */}
+                    {/* Chart — only admins see income vs expenses */}
                     {isAdmin && chartDataState && (
                         <div className="card" style={{ marginTop: "2rem", padding: "1.5rem" }}>
                             <h3 style={{ marginBottom: "1rem" }}>Financial Overview</h3>
@@ -436,7 +436,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                                         {exp.description && <div style={{ fontSize: "0.82rem", color: "var(--text-secondary)" }}>{exp.description}</div>}
                                                     </td>
                                                     <td><span className="badge badge-primary">{exp.category}</span></td>
-                                                    <td style={{ color: "#ef4444", fontWeight: "bold" }}>-â‚¹{parseFloat(exp.amount).toLocaleString()}</td>
+                                                    <td style={{ color: "#ef4444", fontWeight: "bold" }}>-₹{parseFloat(exp.amount).toLocaleString()}</td>
                                                     {!props.isReportMode && canDelete && (
                                                         <td>
                                                             <button className="btn btn-sm btn-danger" onClick={() => handleDeleteExpense(exp.id)}>Delete</button>
@@ -453,7 +453,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                 </div>
             )}
 
-            {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â• TRANSPORT FEES TAB â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+            {/* —————————————— TRANSPORT FEES TAB —————————————— */}
             {activeTab === "transport" && (
                 <div style={{ paddingTop: '1.5rem' }}>
                     <div style={{
@@ -466,7 +466,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                         alignItems: 'center',
                         gap: '1rem'
                     }}>
-                        <span style={{ fontSize: '2rem' }}>ðŸšŒ</span>
+                        <span style={{ fontSize: '2rem' }}>🚌</span>
                         <div>
                             <h3 style={{ margin: 0 }}>Transport Route Fee Plans</h3>
                             <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -482,23 +482,23 @@ const AdminExpenses = forwardRef((props, ref) => {
                             {/* Summary Cards */}
                             <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1.5rem' }}>
                                 <div className="stat-card">
-                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>ðŸšŒ</div>
+                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>🚌</div>
                                     <div className="stat-content">
                                         <h3>{transportFees.length}</h3>
                                         <p>Active Routes</p>
                                     </div>
                                 </div>
                                 <div className="stat-card">
-                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: '#10b981' }}>ðŸ’°</div>
+                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(16,185,129,0.1)', color: '#10b981' }}>💰</div>
                                     <div className="stat-content">
-                                        <h3>â‚¹{transportFees.length > 0 ? Math.min(...transportFees.map(f => parseFloat(f.fee_amount))).toLocaleString() : 0}</h3>
+                                        <h3>₹{transportFees.length > 0 ? Math.min(...transportFees.map(f => parseFloat(f.fee_amount))).toLocaleString() : 0}</h3>
                                         <p>Lowest Route Fee</p>
                                     </div>
                                 </div>
                                 <div className="stat-card">
-                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>ðŸ“</div>
+                                    <div className="stat-icon" style={{ backgroundColor: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>📋</div>
                                     <div className="stat-content">
-                                        <h3>â‚¹{transportFees.length > 0 ? Math.max(...transportFees.map(f => parseFloat(f.fee_amount))).toLocaleString() : 0}</h3>
+                                        <h3>₹{transportFees.length > 0 ? Math.max(...transportFees.map(f => parseFloat(f.fee_amount))).toLocaleString() : 0}</h3>
                                         <p>Highest Route Fee</p>
                                     </div>
                                 </div>
@@ -506,13 +506,13 @@ const AdminExpenses = forwardRef((props, ref) => {
 
                             {transportFees.length === 0 ? (
                                 <div style={{ textAlign: 'center', padding: '4rem 2rem', borderRadius: '12px', border: '2px dashed var(--border-color)' }}>
-                                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>ðŸšŒ</div>
+                                    <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚌</div>
                                     <h3>No transport routes configured yet</h3>
                                     <p style={{ color: 'var(--text-secondary)' }}>Add your first route to get started.</p>
                                     {hasTransportPerm && (
                                         <button className="btn btn-primary" style={{ marginTop: '1rem' }}
                                             onClick={() => { setEditingTransport(null); setTransportForm({ route_name: "", fee_amount: "" }); setTransportError(""); setShowTransportModal(true); }}>
-                                            âž• Add First Route
+                                            ➕ Add First Route
                                         </button>
                                     )}
                                 </div>
@@ -544,7 +544,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                                     background: 'linear-gradient(135deg, #6366f1, #a855f7)',
                                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                                                     fontSize: '1.5rem'
-                                                }}>ðŸšŒ</div>
+                                                }}>🚌</div>
                                                 <div>
                                                     <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{fee.route_name}</h3>
                                                     <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -558,18 +558,18 @@ const AdminExpenses = forwardRef((props, ref) => {
                                             }}>
                                                 <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '2px' }}>Monthly Fee</div>
                                                 <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#6366f1' }}>
-                                                    â‚¹{parseFloat(fee.fee_amount).toLocaleString()}
+                                                    ₹{parseFloat(fee.fee_amount).toLocaleString()}
                                                 </div>
                                             </div>
                                             {hasTransportPerm && (
                                                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                                                     <button className="btn btn-secondary" style={{ flex: 1, fontSize: '0.85rem' }}
                                                         onClick={() => openEditTransport(fee)}>
-                                                        âœï¸ Edit
+                                                        ✏️ Edit
                                                     </button>
                                                     <button className="btn btn-danger" style={{ flex: 1, fontSize: '0.85rem' }}
                                                         onClick={() => handleDeleteTransport(fee.id)}>
-                                                        ðŸ—‘ï¸ Delete
+                                                        🗑️ Delete
                                                     </button>
                                                 </div>
                                             )}
@@ -587,7 +587,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2 style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", paddingBottom: "1rem" }}>
-                            âž• Add New Expense
+                            ➕ Add New Expense
                         </h2>
                         <form onSubmit={handleAddExpense} className="form-grid">
                             <div className="form-group">
@@ -610,7 +610,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Amount (â‚¹) *</label>
+                                <label className="form-label">Amount (₹) *</label>
                                 <input type="number" className="form-input" name="amount" value={formData.amount}
                                     onChange={handleInputChange} required placeholder="e.g. 5000" min="1" />
                             </div>
@@ -626,7 +626,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                             </div>
                             <div className="form-actions" style={{ gridColumn: "1 / -1", marginTop: "1rem", paddingTop: "1rem", borderTop: "1px solid var(--border-color)" }}>
                                 <button type="button" className="btn btn-secondary" onClick={() => setShowAddModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">ðŸ’¾ Save Expense</button>
+                                <button type="submit" className="btn btn-primary">💾 Save Expense</button>
                             </div>
                         </form>
                     </div>
@@ -638,7 +638,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                 <div className="modal-overlay">
                     <div className="modal-content" style={{ maxWidth: '440px' }}>
                         <h2 style={{ marginBottom: "1.5rem", borderBottom: "1px solid var(--border-color)", paddingBottom: "1rem" }}>
-                            {editingTransport ? 'âœï¸ Edit Transport Route' : 'âž• Add Transport Route'}
+                            {editingTransport ? 'âœï¸ Edit Transport Route' : '➕ Add Transport Route'}
                         </h2>
                         <form onSubmit={handleSaveTransport}>
                             <div className="form-group" style={{ marginBottom: '1rem' }}>
@@ -648,7 +648,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                     placeholder="e.g. Route A - City Center" required />
                             </div>
                             <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                <label className="form-label">Monthly Fee (â‚¹) *</label>
+                                <label className="form-label">Monthly Fee (₹) *</label>
                                 <input type="number" className="form-input" name="fee_amount"
                                     value={transportForm.fee_amount} onChange={handleTransportFormChange}
                                     placeholder="e.g. 500" min="1" required />
@@ -662,7 +662,7 @@ const AdminExpenses = forwardRef((props, ref) => {
                                 <button type="button" className="btn btn-secondary"
                                     onClick={() => { setShowTransportModal(false); setEditingTransport(null); }}>Cancel</button>
                                 <button type="submit" className="btn btn-primary">
-                                    {editingTransport ? 'âœ… Update Route' : 'ðŸ’¾ Add Route'}
+                                    {editingTransport ? '✅ Update Route' : '💾 Add Route'}
                                 </button>
                             </div>
                         </form>

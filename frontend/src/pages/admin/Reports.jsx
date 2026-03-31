@@ -386,7 +386,9 @@ function Reports() {
                                     >
                                         <option value="">All Classes</option>
                                         {classes.map(cls => (
-                                            <option key={cls.id} value={cls.id}>{cls.name}</option>
+                                            <option key={cls.id} value={cls.id}>
+                                                {cls.name}{cls.section ? ` - ${cls.section}` : ''}
+                                            </option>
                                         ))}
                                     </select>
                                 </div>

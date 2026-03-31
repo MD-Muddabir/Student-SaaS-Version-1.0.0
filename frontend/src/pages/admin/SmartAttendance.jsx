@@ -131,7 +131,16 @@ function SmartAttendance() {
                 isScannerRunning.current = false;
             }
         } catch (e) {
-            // ignore
+            // ignore stop errors
+        } finally {
+            // Always clear the ref so next startScanner creates a fresh instance
+            try {
+                if (qrCodeRef.current) {
+                    qrCodeRef.current.clear();
+                }
+            } catch (e) { /* ignore */ }
+            qrCodeRef.current = null;
+            isScannerRunning.current = false;
         }
     };
 
@@ -170,7 +179,12 @@ function SmartAttendance() {
     const handleScanAnother = async () => {
         setMessage(null);
         isProcessed.current = false;
-        await startScanner();
+        // Stop and clear old scanner instance fully, then restart
+        await stopScanner();
+        // Small delay to let the DOM element re-render before starting
+        setTimeout(() => {
+            startScanner();
+        }, 300);
     };
 
     return (

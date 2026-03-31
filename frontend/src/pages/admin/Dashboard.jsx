@@ -206,6 +206,10 @@ function AdminDashboard() {
         exams: '📝 Exams',
         expenses: '💸 Expenses',
         transport: '🚌 Transport',
+        assignments: '📄 Assignments',
+        biometric: '🔐 Biometric',
+        notes: '📓 Notes',
+        chat: '💬 Chat Monitor',
     };
 
     return (
@@ -492,19 +496,20 @@ function AdminDashboard() {
                     {hasPermission('subjects') && <ActionCard path={`${basePath}/subjects`} icon="📖" title="Manage Subjects" featureKey="subjects" />}
 
                     {hasPermission('fees') && <ActionCard path={`${basePath}/fees`} icon="💰" title="Collect Fees" featureKey="fees" />}
-                    {hasPermission('expenses') && <ActionCard path={`${basePath}/expenses`} icon="💸" title="Finances & Expenses" featureKey="expenses" />}
-                    {(isAdmin || hasPermission('transport')) && <ActionCard path={`${basePath}/expenses`} icon="🚌" title="Transport Fees" featureKey="expenses" />}
+                    {hasPermission('expenses') && <ActionCard path={`${basePath}/expenses`} icon="💸" title="Finances & Transport" featureKey="expenses" />}
 
                     {hasPermission('reports') && <ActionCard path={`${basePath}/reports`} icon="📊" title="Reports & Analytics" featureKey="reports" />}
                     {hasPermission('exams') && <ActionCard path={`${basePath}/exams`} icon="📝" title="Manage Exams" featureKey="exams" />}
                     {hasPermission('classes') && <ActionCard path={`${basePath}/timetable`} icon="📅" title="Master Timetable" featureKey="timetable" />}
                     {hasPermission('announcements') && <ActionCard path={`${basePath}/announcements`} icon="📢" title="Announcements" featureKey="announcements" badge={stats.unreadAnnouncementCount || 0} />}
 
-                    {/* New Notes & Chat Features */}
-                    <ActionCard path={`${basePath}/assignments`} icon="📝" title="Assignments" />
-                    <ActionCard path={`${basePath}/biometric`} icon="🔐" title="Biometric Attendance" />
-                    <ActionCard path={`${basePath}/notes`} icon="📓" title="All Notes" />
-                    <ActionCard path={`${basePath}/chat-monitor`} icon="💬" title="Chat Monitor" badge={stats.unreadChatCount || 0} />
+
+                    {/* New Notes & Chat Features - Permission gated for managers */}
+                    {(isAdmin || hasPermission('assignments')) && <ActionCard path={`${basePath}/assignments`} icon="📝" title="Assignments" featureKey="assignments" />}
+                    {(isAdmin || hasPermission('biometric')) && <ActionCard path={`${basePath}/biometric`} icon="🔐" title="Biometric Attendance" featureKey="biometric" />}
+                    {(isAdmin || hasPermission('notes')) && <ActionCard path={`${basePath}/notes`} icon="📓" title="All Notes" featureKey="notes" />}
+                    {(isAdmin || hasPermission('chat')) && <ActionCard path={`${basePath}/chat-monitor`} icon="💬" title="Chat Monitor" featureKey="chat" badge={stats.unreadChatCount || 0} />}
+
                     {/* Public Web Page — always visible for admin */}
                     {isAdmin && (
                         <div

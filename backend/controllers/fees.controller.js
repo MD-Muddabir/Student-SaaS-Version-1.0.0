@@ -21,30 +21,67 @@ exports.createFeeStructure = async (req, res) => {
             description,
         });
 
-        // Auto assign to existing students of this class
-        if (!subject_id && class_id) {
+        // ── Auto-assign StudentFee records ──────────────────────────────────
+        const makeFeeRecord = (student_id_val) => ({
+            institute_id,
+            student_id: student_id_val,
+            class_id: class_id,
+            fee_structure_id: feeStructure.id,
+            original_amount: amount,
+            discount_amount: 0,
+            final_amount: amount,
+            paid_amount: 0,
+            due_amount: amount,
+            status: 'pending'
+        });
+
+        if (individual_student_id) {
+            // ── INDIVIDUAL STUDENT target ──
+            // Only create a fee record for this specific student
+            const student = await Student.findOne({ where: { id: individual_student_id, institute_id } });
+            if (student) {
+                // Check for duplicate
+                const existing = await StudentFee.findOne({
+                    where: { student_id: individual_student_id, fee_structure_id: feeStructure.id, institute_id }
+                });
+                if (!existing) {
+                    await StudentFee.create(makeFeeRecord(individual_student_id));
+                }
+            }
+        } else if (class_id) {
+            // ── ALL STUDENTS target ──
             const students = await Student.findAll({
                 where: { institute_id },
                 include: [{ model: Class, where: { id: class_id } }]
             });
 
-            const feeRecords = students
-                .filter(s => fee_type !== 'Tuition Fee' || s.is_full_course)
-                .map(s => ({
-                    institute_id,
-                    student_id: s.id,
-                    class_id: class_id,
-                    fee_structure_id: feeStructure.id,
-                    original_amount: amount,
-                    discount_amount: 0,
-                    final_amount: amount,
-                    paid_amount: 0,
-                    due_amount: amount,
-                    status: 'pending'
-                }));
+            let targetStudents;
+
+            if (subject_id) {
+                // Subject-specific fee — only assign to students enrolled in that subject
+                // AND who are NOT full-course (full-course students pay one tuition fee, not per-subject)
+                const SubjectModel = require('../models').Subject;
+                const subjectWithStudents = await SubjectModel.findOne({
+                    where: { id: subject_id, institute_id },
+                    include: [{ model: Student }]
+                });
+                const enrolledStudentIds = subjectWithStudents?.Students?.map(s => s.id) || [];
+                targetStudents = students.filter(s => !s.is_full_course && enrolledStudentIds.includes(s.id));
+            } else {
+                // General class fee (no subject) — apply based on fee type
+                if (fee_type === 'Tuition Fee') {
+                    // Only full-course students pay the general tuition fee
+                    targetStudents = students.filter(s => s.is_full_course);
+                } else {
+                    // All other fee types (Exam Fee, Library Fee, Transport Fee, Other) - apply to all
+                    targetStudents = students;
+                }
+            }
+
+            const feeRecords = targetStudents.map(s => makeFeeRecord(s.id));
 
             if (feeRecords.length > 0) {
-                await StudentFee.bulkCreate(feeRecords);
+                await StudentFee.bulkCreate(feeRecords, { ignoreDuplicates: true });
             }
         }
 
