@@ -16,8 +16,7 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST || "localhost",              // ❌ no localhost fallback
         port: process.env.DB_PORT || 3306,
         dialect: "mysql",
-        logging: process.env.NODE_ENV === "production" ? false : console.log,  // ✅ Show logs in dev, hide in prod
-
+        logging: false,
         pool: {
             max: 10,
             min: 0,
@@ -30,10 +29,5 @@ const sequelize = new Sequelize(
         },
     }
 );
-
-// Test connection on startup
-sequelize.authenticate()
-    .then(() => console.log("✅ Database connected successfully"))
-    .catch(err => console.error("❌ Database connection failed:", err.message));
 
 module.exports = sequelize;

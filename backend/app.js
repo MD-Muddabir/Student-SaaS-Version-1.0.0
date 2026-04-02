@@ -1,7 +1,195 @@
+/**
+ * Main Application File
+ * Configures Express server with middleware, routes, and error handling
+ * Implements multi-tenant SaaS architecture for coaching institutes
+ */
+
+const express = require("express");
+const cors = require("cors");
+const path = require("path");
+require("dotenv").config();
+
+const app = express();
+
+// ============================================
+// GLOBAL MIDDLEWARE SETUP
+// ============================================
+
+/**
+ * CORS Configuration
+ * Allows cross-origin requests from frontend
+ */
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "*",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+}));
+
+/**
+ * Webhook Routes (Must be parsed as raw body for signature verification)
+ */
+app.use("/api/webhook", express.raw({ type: 'application/json' }), require("./routes/webhook.routes"));
+
+/**
+ * Body Parsers
+ * Parse JSON and URL-encoded data
+ */
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
+/**
+ * Static Files
+ * Serve uploaded files
+ */
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+/**
+ * Request Logger Middleware
+ * Logs all incoming requests with timestamp
+ */
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+});
+
+// ============================================
+// API ROUTES
+// ============================================
+
+/**
+ * Health Check Endpoint
+ * Returns server status
+ */
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "🎓 Student SaaS API is running",
+    version: "1.0.0",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+/**
+ * API Routes
+ * All routes are prefixed with /api
+ */
+app.use("/api/auth", require("./routes/auth.routes"));
+app.use("/api/superadmin", require("./routes/superadmin.routes"));
+app.use("/api/admin", require("./routes/admin.routes"));
+app.use("/api/institutes", require("./routes/institute.routes"));
+app.use("/api/students", require("./routes/student.routes"));
+app.use("/api/faculty", require("./routes/faculty.routes"));
+app.use("/api/faculty-attendance", require("./routes/facultyAttendance.routes"));
+app.use("/api/classes", require("./routes/class.routes"));
+app.use("/api/subjects", require("./routes/subject.routes"));
+app.use("/api/attendance", require("./routes/attendance.routes"));
+app.use("/api/reports", require("./routes/reports.routes"));
+app.use("/api/exams", require("./routes/exam.routes"));
+app.use("/api/fees", require("./routes/fees.routes"));
+app.use("/api/announcements", require("./routes/announcement.routes"));
+app.use("/api/subscriptions", require("./routes/subscription.routes"));
+app.use("/api/plans", require("./routes/plan.routes"));
+app.use("/api/payment", require("./routes/payment.routes"));
+app.use("/api/invoices", require("./routes/invoice.routes"));
+app.use("/api/expenses", require("./routes/expense.routes"));
+app.use("/api/transport-fees", require("./routes/transportFee.routes"));
+app.use("/api/manager", require("./routes/manager.routes"));
+app.use("/api/timetable", require("./routes/timetable.routes"));
+// Webhook route already mounted above
+app.use("/api/chat", require("./routes/chat.routes"));
+app.use("/api/parents", require("./routes/parent.routes"));
+app.use("/api/biometric", require("./routes/biometric.routes"));
+app.use("/api/notes", require("./routes/note.routes"));
+app.use("/api/assignments", require("./routes/assignment.routes"));
+
+// Public Web Page routes
+app.use("/api/admin/public-page", require("./routes/publicPage.routes"));
+app.use("/api/admin/enquiries", require("./routes/enquiry.routes"));
+app.use("/api/public", require("./routes/publicSite.routes"));
+app.use("/api/leads", require("./routes/lead.routes"));
+
+// ============================================
+// 404 HANDLER
+// ============================================
+
+/**
+ * Handle undefined routes
+ */
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.url,
+  });
+});
+
+// ============================================
+// GLOBAL ERROR HANDLER 
+// ============================================
+
+/**
+ * Central Error Handling Middleware
+ * Catches all errors and returns standardized response
+ */
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+
+  // Sequelize validation errors
+  if (err.name === "SequelizeValidationError") {
+    return res.status(400).json({
+      success: false,
+      message: "Validation error",
+      errors: err.errors.map((e) => ({
+        field: e.path,
+        message: e.message,
+      })),
+    });
+  }
+
+  // Sequelize unique constraint errors
+  if (err.name === "SequelizeUniqueConstraintError") {
+    return res.status(409).json({
+      success: false,
+      message: "Duplicate entry",
+      field: err.errors[0]?.path,
+    });
+  }
+
+  // JWT errors
+  if (err.name === "JsonWebTokenError") {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid token",
+    });
+  }
+
+  if (err.name === "TokenExpiredError") {
+    return res.status(401).json({
+      success: false,
+      message: "Token expired",
+    });
+  }
+
+  // Default error response
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
+
 // ============================================
 // DATABASE SYNCHRONIZATION
 // ============================================
 
+/**
+ * Sync database models
+ * Creates tables if they don't exist
+ * Use { alter: true } in development, { force: false } in production
+ */
+
+// Creation Logic: The command that actually creates or updates the tables in the database
 const { sequelize } = require("./models");
 
 const syncDatabase = async () => {
@@ -11,119 +199,140 @@ const syncDatabase = async () => {
     console.log("✅ Database connection established successfully");
 
     // ─────────────────────────────────────────────────────────────────
-    // STEP 1: Create all tables WITHOUT foreign keys first
-    // This prevents "Failed to open the referenced table" errors
+    // AUTO-CLEANUP: Drop duplicate indexes before syncing.
+    // Sequelize's alter:true was adding a new copy of every index on
+    // every restart, quickly hitting MySQL's 64-key limit.
+    // This cleanup runs on every startup and is a no-op when clean.
     // ─────────────────────────────────────────────────────────────────
-    console.log("📦 Creating base tables...");
-    await sequelize.sync({ force: false, alter: false });
-    console.log("✅ Base tables created");
-
-    // ─────────────────────────────────────────────────────────────────
-    // STEP 2: Add columns that might be missing (safe ALTER TABLEs)
-    // Wrapped in try-catch so they're no-ops if already exist
-    // ─────────────────────────────────────────────────────────────────
-    console.log("🔧 Adding missing columns...");
-
-    const safeAlter = async (sql, description) => {
-      try {
-        await sequelize.query(sql);
-        console.log(`   ✓ ${description}`);
-      } catch (e) {
-        // Column/table already exists - ignore
-      }
-    };
-
-    // Students table
-    await safeAlter(`ALTER TABLE students ADD COLUMN is_full_course BOOLEAN DEFAULT false;`, 'students.is_full_course');
-
-    // Student fees table
-    await safeAlter(`ALTER TABLE student_fees ADD COLUMN reminder_date DATE;`, 'student_fees.reminder_date');
-
-    // Subscriptions table
-    await safeAlter(`ALTER TABLE subscriptions ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0;`, 'subscriptions.discount_amount');
-    await safeAlter(`ALTER TABLE subscriptions ADD COLUMN tax_amount DECIMAL(10,2) DEFAULT 0;`, 'subscriptions.tax_amount');
-
-    // Attendance biometric columns
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN marked_by_type ENUM('manual','biometric','mobile_otp','qr_code') DEFAULT 'manual';`, 'attendances.marked_by_type');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN biometric_punch_id BIGINT NULL;`, 'attendances.biometric_punch_id');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN time_in TIME NULL;`, 'attendances.time_in');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN time_out TIME NULL;`, 'attendances.time_out');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN is_late BOOLEAN DEFAULT false;`, 'attendances.is_late');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN late_by_minutes INT DEFAULT 0;`, 'attendances.late_by_minutes');
-    await safeAlter(`ALTER TABLE attendances ADD COLUMN is_half_day BOOLEAN DEFAULT false;`, 'attendances.is_half_day');
-
-    // Public page features
-    await safeAlter(`ALTER TABLE plans ADD COLUMN feature_public_page BOOLEAN DEFAULT false;`, 'plans.feature_public_page');
-    await safeAlter(`ALTER TABLE institutes ADD COLUMN current_feature_public_page BOOLEAN DEFAULT false;`, 'institutes.current_feature_public_page');
-    await safeAlter(`ALTER TABLE institute_reviews ADD COLUMN sort_order INT DEFAULT 0;`, 'institute_reviews.sort_order');
-    await safeAlter(`ALTER TABLE institute_reviews ADD COLUMN is_approved BOOLEAN DEFAULT true;`, 'institute_reviews.is_approved');
-    await safeAlter(`ALTER TABLE institute_gallery_photos ADD COLUMN sort_order INT DEFAULT 0;`, 'institute_gallery_photos.sort_order');
-
-    // Free trial columns
-    await safeAlter(`ALTER TABLE plans ADD COLUMN is_free_trial BOOLEAN DEFAULT false;`, 'plans.is_free_trial');
-    await safeAlter(`ALTER TABLE plans ADD COLUMN trial_days INT DEFAULT 14;`, 'plans.trial_days');
-    await safeAlter(`ALTER TABLE institutes ADD COLUMN has_used_trial BOOLEAN DEFAULT false;`, 'institutes.has_used_trial');
-
-    console.log("✅ All columns updated");
-
-    // ─────────────────────────────────────────────────────────────────
-    // STEP 3: Sync specific models that need alter:true
-    // Only for models that change frequently
-    // ─────────────────────────────────────────────────────────────────
-    console.log("🔄 Syncing specific models...");
     try {
-      const {
-        InstitutePublicProfile,
-        InstituteGalleryPhoto,
-        InstituteReview,
-        PublicEnquiry,
-        Subscription,
-        Plan
-      } = require('./models');
+      const DB_NAME = process.env.DB_NAME || "student_saas";
 
-      await InstitutePublicProfile.sync({ alter: false });
-      await InstituteGalleryPhoto.sync({ alter: false });
-      await InstituteReview.sync({ alter: false });
-      await PublicEnquiry.sync({ alter: false });
-      await Subscription.sync({ alter: false });
-      await Plan.sync({ alter: false });
+      // Get tables with too many indexes
+      const [tables] = await sequelize.query(
+        `SELECT TABLE_NAME, COUNT(DISTINCT INDEX_NAME) as idx_count
+         FROM information_schema.STATISTICS
+         WHERE TABLE_SCHEMA = '${DB_NAME}'
+         GROUP BY TABLE_NAME
+         HAVING idx_count > 30`
+      );
 
-      console.log("✅ Specific models synced");
-    } catch (e) {
-      console.warn("⚠️ Specific model sync skipped:", e.message);
+      for (const row of tables) {
+        const tableName = row.TABLE_NAME;
+        console.log(`🔧 Cleaning duplicate indexes on '${tableName}'...`);
+
+        const [indexRows] = await sequelize.query(
+          `SELECT INDEX_NAME, NON_UNIQUE, COLUMN_NAME, SEQ_IN_INDEX
+           FROM information_schema.STATISTICS
+           WHERE TABLE_SCHEMA = '${DB_NAME}' AND TABLE_NAME = '${tableName}'
+           ORDER BY INDEX_NAME, SEQ_IN_INDEX`
+        );
+
+        const indexMap = {};
+        for (const idx of indexRows) {
+          if (!indexMap[idx.INDEX_NAME]) {
+            indexMap[idx.INDEX_NAME] = { unique: idx.NON_UNIQUE === 0, columns: [] };
+          }
+          indexMap[idx.INDEX_NAME].columns.push(idx.COLUMN_NAME);
+        }
+
+        const seen = new Set();
+        for (const [name, idx] of Object.entries(indexMap)) {
+          if (name === "PRIMARY") continue;
+          const sig = [...idx.columns].sort().join(",") + (idx.unique ? "|u" : "|n");
+          if (seen.has(sig)) {
+            try {
+              await sequelize.query(`ALTER TABLE \`${tableName}\` DROP INDEX \`${name}\``);
+              console.log(`   ✓ Dropped duplicate index: ${name}`);
+            } catch (_) { /* ignore if already gone */ }
+          } else {
+            seen.add(sig);
+          }
+        }
+      }
+    } catch (cleanupErr) {
+      console.warn("⚠️  Index cleanup skipped:", cleanupErr.message);
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // STEP 4: Add performance indexes
+    // SAFE SYNC: alter:false only creates missing tables,
+    // never modifies existing tables (prevents index duplication)
+    // Plus a few one-time ALTERs wrapped in try/catch so they are
+    // effectively no-ops once applied.
     // ─────────────────────────────────────────────────────────────────
-    console.log("📊 Adding indexes...");
-    await safeAlter(`CREATE INDEX idx_profile_slug ON institute_public_profiles(slug);`, 'idx_profile_slug');
-    await safeAlter(`CREATE INDEX idx_gallery_inst ON institute_gallery_photos(institute_id);`, 'idx_gallery_inst');
-    await safeAlter(`CREATE INDEX idx_reviews_inst ON institute_reviews(institute_id);`, 'idx_reviews_inst');
-    await safeAlter(`CREATE INDEX idx_enquiry_inst ON public_enquiries(institute_id, status, created_at);`, 'idx_enquiry_inst');
-    console.log("✅ Indexes added");
+    try {
+      await sequelize.query(`ALTER TABLE students ADD COLUMN is_full_course BOOLEAN DEFAULT false;`);
+    } catch (e) { }
 
-    // ─────────────────────────────────────────────────────────────────
-    // STEP 5: Seed initial data
-    // ─────────────────────────────────────────────────────────────────
-    console.log("🌱 Seeding initial data...");
+    try {
+      await sequelize.query(`ALTER TABLE student_fees ADD COLUMN reminder_date DATE;`);
+    } catch (e) { }
+
+    // Ensure discount_amount exists on subscriptions for superadmin analytics
+    try {
+      await sequelize.query(`ALTER TABLE subscriptions ADD COLUMN discount_amount DECIMAL(10,2) DEFAULT 0;`);
+    } catch (e) { }
+
+    try {
+      await sequelize.query(`ALTER TABLE subscriptions ADD COLUMN tax_amount DECIMAL(10,2) DEFAULT 0;`);
+    } catch (e) { }
+
+    // Biometric attendance columns
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN marked_by_type ENUM('manual','biometric','mobile_otp','qr_code') DEFAULT 'manual';`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN biometric_punch_id BIGINT NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN time_in TIME NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN time_out TIME NULL;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN is_late BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN late_by_minutes INT DEFAULT 0;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE attendances ADD COLUMN is_half_day BOOLEAN DEFAULT false;`); } catch (e) { }
+    // Modify attendance status ENUM to add half_day
+    try { await sequelize.query(`ALTER TABLE attendances MODIFY COLUMN status ENUM('present','absent','late','holiday','half_day');`); } catch (e) { }
+
+    // Public Web Page feature columns
+    try { await sequelize.query(`ALTER TABLE plans ADD COLUMN feature_public_page BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institutes ADD COLUMN current_feature_public_page BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_reviews ADD COLUMN sort_order INT DEFAULT 0;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_reviews ADD COLUMN is_approved BOOLEAN DEFAULT true;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institute_gallery_photos ADD COLUMN sort_order INT DEFAULT 0;`); } catch (e) { }
+
+    // Free Trial columns
+    try { await sequelize.query(`ALTER TABLE plans ADD COLUMN is_free_trial BOOLEAN DEFAULT false;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE plans ADD COLUMN trial_days INT DEFAULT 14;`); } catch (e) { }
+    try { await sequelize.query(`ALTER TABLE institutes ADD COLUMN has_used_trial BOOLEAN DEFAULT false;`); } catch (e) { }
+
+    // Auto-sync other schema changes using alter for the explicit models to make sure everything matches
+    try {
+      const { InstitutePublicProfile, InstituteGalleryPhoto, InstituteReview, PublicEnquiry, Subscription, Plan } = require('./models');
+      await InstitutePublicProfile.sync({ alter: true });
+      await InstituteGalleryPhoto.sync({ alter: true });
+      await InstituteReview.sync({ alter: true });
+      await PublicEnquiry.sync({ alter: true });
+      await Subscription.sync({ alter: true });
+      await Plan.sync({ alter: true });
+    } catch (e) { console.error("Error auto-syncing explicit models:", e); }
+
+    await sequelize.sync({ alter: false });
+    console.log("✅ Database synchronized successfully");
+
+    // Add indexes for performance (public page tables)
+    try { await sequelize.query(`CREATE INDEX idx_profile_slug ON institute_public_profiles(slug);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_gallery_inst ON institute_gallery_photos(institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_reviews_inst ON institute_reviews(institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_enquiry_inst ON public_enquiries(institute_id, status, created_at);`); } catch (e) { }
+
+    // Seed plans if not exists
     const seedPlans = require("./seeders/seedPlans");
     await seedPlans();
-    console.log("✅ Plans seeded");
 
+    // Create super admin if not exists
     const createSuperAdmin = require("./seeders/createSuperAdmin");
     await createSuperAdmin();
-    console.log("✅ Super admin created");
-
-    console.log("✅✅✅ Database fully synchronized and ready!");
-
   } catch (error) {
-    console.error("❌❌❌ Database error:", error.message);
-    console.error("Full error:", error);
+    console.error("❌ Database error:", error.message);
     console.error("Please ensure MySQL is running and database 'student_saas' exists");
-    process.exit; // Exit the process - Railway will restart it
   }
 };
 
-// Export syncDatabase function so server.js can call it
-module.exports = { app, syncDatabase };
+// Sync database on startup
+syncDatabase();
+
+module.exports = app;
