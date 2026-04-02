@@ -19,11 +19,23 @@ const app = express();
  * CORS Configuration
  * Allows cross-origin requests from frontend
  */
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || "*",
+//   credentials: true,
+//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+// }));
+// AFTER (CORRECT)
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "*",
+  origin: [
+    "https://student-saa-s-version-1-0-0-md-muddabirs-projects.vercel.app",
+    "http://localhost:5173",
+    "http://localhost:3000"
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 /**
  * Webhook Routes (Must be parsed as raw body for signature verification)
