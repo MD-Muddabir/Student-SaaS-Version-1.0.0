@@ -77,7 +77,8 @@ const allowedOrigins = [
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (mobile apps, Postman, server-to-server)
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Also allow ANY .vercel.app domain to support dynamic Vercel preview branch URLs
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
             callback(null, true);
         } else {
             callback(new Error(`Not allowed by CORS: ${origin}`));

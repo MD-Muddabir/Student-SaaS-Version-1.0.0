@@ -4,21 +4,26 @@ import axios from "axios";
  * Resolve API Base URL (Production-ready)
  */
 const getBaseURL = () => {
-    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    let baseURL = import.meta.env.VITE_API_BASE_URL;
 
-    if (!baseURL || !baseURL.trim()) {
-        console.error("❌ VITE_API_BASE_URL is not defined");
-
-        // Fallback ONLY for local development
-        if (import.meta.env.DEV) {
-            return "http://localhost:5000/api";
-        }
-
-        // In production, fail fast
-        throw new Error("API Base URL is missing in production");
+    // Remove trailing slash if present
+    if (baseURL) {
+        baseURL = baseURL.replace(/\/$/, "");
     }
 
-    return baseURL.replace(/\/$/, "");
+    if (!baseURL || !baseURL.trim()) {
+        console.warn("⚠️ VITE_API_BASE_URL is not defined in environment variables");
+
+        if (import.meta.env.DEV) {
+            // Development fallback
+            return "http://localhost:5000/api";
+        } else {
+            // Production fallback - Points to the assigned Render backend
+            return "https://student-saas-backend.onrender.com/api";
+        }
+    }
+
+    return baseURL;
 };
 
 /**
