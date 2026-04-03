@@ -2,6 +2,7 @@
  * Database Configuration
  * Sequelize instance for MySQL connection
  * Uses environment variables for flexibility across environments
+ * ✅ Phase 1.1: Optimized Connection Pooling, SSL, Compression, Health Check
  */
 
 const { Sequelize } = require("sequelize");
@@ -24,18 +25,45 @@ const sequelize = new Sequelize(
         host: dbHost,
         port: dbPort,
         dialect: "mysql",
-        logging: false,
+
+        // ✅ Phase 1.1: Only log slow queries in development
+        logging: process.env.NODE_ENV === "development"
+            ? (sql, timing) => {
+                if (timing && timing > 500) {
+                    console.warn(`🐌 SLOW QUERY (${timing}ms):`, sql.substring(0, 200));
+                }
+            }
+            : false,
+        benchmark: process.env.NODE_ENV === "development", // Track query times in dev
+
+        // ✅ Phase 1.1: CRITICAL - Optimized Connection Pooling
         pool: {
-            max: 10,
-            min: 0,
-            acquire: 60000,
-            idle: 10000,
+            max: 10,        // Maximum connections (optimized for Railway/Render limits)
+            min: 2,         // Keep 2 always ready - eliminates connection delay
+            acquire: 30000, // Max time to get connection (30s)
+            idle: 10000,    // Close idle connections after 10s
         },
+
+        // ✅ Phase 1.1: Connection Timeout + SSL + Compression
+        dialectOptions: {
+            connectTimeout: 60000,
+            ssl: process.env.DB_SSL === "true"
+                ? { rejectUnauthorized: true }
+                : false,
+            compress: true, // Enable MySQL protocol compression
+        },
+
         define: {
             timestamps: true,    // Automatically add created_at and updated_at
             underscored: true,   // Use snake_case to match database columns
+            paranoid: false,     // Disable paranoid (faster deletes)
         },
     }
 );
+
+// ✅ Phase 1.1: Connection health check on startup
+sequelize.authenticate()
+    .then(() => console.log("✅ DB Pool Ready (min:2 connections warm)"))
+    .catch(err => console.error("❌ DB Pool Failed:", err.message));
 
 module.exports = sequelize;

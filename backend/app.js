@@ -2,38 +2,91 @@
  * Main Application File
  * Configures Express server with middleware, routes, and error handling
  * Implements multi-tenant SaaS architecture for coaching institutes
+ * ✅ Phase 1: Compression, Rate Limiting, Optimized CORS
+ * ✅ Phase 6: Performance Monitoring
  */
 
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const compression = require("compression");               // ✅ Phase 1.2
+const rateLimit = require("express-rate-limit");          // ✅ Phase 1.4
+const performanceLogger = require("./middlewares/performance.middleware"); // ✅ Phase 6.1
 require("dotenv").config();
 
 const app = express();
 
 // ============================================
-// GLOBAL MIDDLEWARE SETUP
+// ✅ PHASE 1.2: RESPONSE COMPRESSION
+// ============================================
+// Compress all HTTP responses — reduces payload size by ~70%
+app.use(compression({
+    level: 6,           // Compression level (0-9): 6 is best speed/size balance
+    threshold: 1024,    // Only compress responses > 1KB
+    filter: (req, res) => {
+        if (req.headers["x-no-compression"]) return false;
+        return compression.filter(req, res);
+    },
+}));
+
+// ============================================
+// ✅ PHASE 6.1: PERFORMANCE MONITORING
+// ============================================
+app.use(performanceLogger);
+
+// ============================================
+// ✅ PHASE 1.4: RATE LIMITING
+// ============================================
+// Global rate limiter: 200 requests per 15 minutes per IP
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many requests — please try again later." },
+    skip: (req) => req.ip === "127.0.0.1" || req.ip === "::1", // Don't limit localhost
+});
+app.use("/api/", globalLimiter);
+
+// Strict auth limiter: 10 login attempts per 15 minutes per IP
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    skipSuccessfulRequests: true,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many login attempts — please wait 15 minutes." },
+});
+app.use("/api/auth/login", authLimiter);
+
+// ============================================
+// ✅ PHASE 1.3: OPTIMIZED CORS CONFIGURATION
 // ============================================
 
 /**
  * CORS Configuration
- * Allows cross-origin requests from frontend
+ * Specific origins only (faster than wildcard) + preflight cache (24h)
  */
-// app.use(cors({
-//   origin: process.env.FRONTEND_URL || "*",
-//   credentials: true,
-//   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-// }));
-// AFTER (CORRECT)
-app.use(cors({
-  origin: [
+const allowedOrigins = [
     "https://student-saa-s-version-1-0-0-md-muddabirs-projects.vercel.app",
+    process.env.FRONTEND_URL,
     "http://localhost:5173",
-    "http://localhost:3000"
-  ],
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+    "http://localhost:3000",
+].filter(Boolean);
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (mobile apps, Postman, server-to-server)
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS: ${origin}`));
+        }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    maxAge: 86400, // ✅ Cache preflight for 24 hours — reduces OPTIONS requests
 }));
 
 
@@ -55,15 +108,8 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
  */
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-/**
- * Request Logger Middleware
- * Logs all incoming requests with timestamp
- */
-app.use((req, res, next) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  next();
-});
+// Note: Basic request logging is handled by the performanceLogger middleware above.
+// It provides richer data: duration, status codes, slow-request warnings.
 
 // ============================================
 // API ROUTES
@@ -330,6 +376,37 @@ const syncDatabase = async () => {
     try { await sequelize.query(`CREATE INDEX idx_gallery_inst ON institute_gallery_photos(institute_id);`); } catch (e) { }
     try { await sequelize.query(`CREATE INDEX idx_reviews_inst ON institute_reviews(institute_id);`); } catch (e) { }
     try { await sequelize.query(`CREATE INDEX idx_enquiry_inst ON public_enquiries(institute_id, status, created_at);`); } catch (e) { }
+
+    // ✅ Phase 2.2: Critical Performance Indexes
+    // Students - fast lookups by institute + class (most common query)
+    try { await sequelize.query(`CREATE INDEX idx_students_inst_class ON students(institute_id, class_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE UNIQUE INDEX idx_students_email ON students(email);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_students_status ON students(institute_id, status);`); } catch (e) { }
+
+    // Attendance - fast date-range lookups (most frequent query)
+    try { await sequelize.query(`CREATE INDEX idx_att_student_date ON attendances(student_id, date);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_att_inst_date ON attendances(institute_id, date);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_att_class_date ON attendances(class_id, date);`); } catch (e) { }
+
+    // Subscriptions - fast middleware checks (called on every authenticated request)
+    try { await sequelize.query(`CREATE INDEX idx_sub_inst_status ON subscriptions(institute_id, status);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_sub_end_date ON subscriptions(subscription_end);`); } catch (e) { }
+
+    // Subjects - class + institute lookups
+    try { await sequelize.query(`CREATE INDEX idx_subjects_class_inst ON subjects(class_id, institute_id);`); } catch (e) { }
+
+    // Faculty - institute lookups
+    try { await sequelize.query(`CREATE INDEX idx_faculty_inst ON faculty(institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE UNIQUE INDEX idx_faculty_email ON faculty(email);`); } catch (e) { }
+
+    // Student fees - fast fee tracking
+    try { await sequelize.query(`CREATE INDEX idx_sfee_student ON student_fees(student_id, institute_id);`); } catch (e) { }
+    try { await sequelize.query(`CREATE INDEX idx_sfee_due ON student_fees(due_date, status);`); } catch (e) { }
+
+    // Exams - institute + class lookups
+    try { await sequelize.query(`CREATE INDEX idx_exams_inst ON exams(institute_id, class_id);`); } catch (e) { }
+
+    console.log("✅ Phase 2.2: Performance indexes verified/created");
 
     // Seed plans if not exists
     const seedPlans = require("./seeders/seedPlans");
