@@ -105,11 +105,20 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 /**
  * Static Files
- * NOTE: Local /uploads folder is NO LONGER USED.
- * All file uploads are now stored on Cloudinary (permanent cloud CDN).
- * The line below is kept commented for reference during migration.
+ * Serve local /uploads folder when Cloudinary is NOT configured (dev mode).
+ * In production with Cloudinary, all URLs are direct Cloudinary CDN links.
  */
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+const isCloudinaryReady =
+    process.env.CLOUDINARY_CLOUD_NAME &&
+    process.env.CLOUDINARY_CLOUD_NAME !== "your_cloud_name" &&
+    process.env.CLOUDINARY_API_KEY &&
+    process.env.CLOUDINARY_API_KEY !== "your_api_key";
+
+if (!isCloudinaryReady) {
+    // Serve local uploads only when Cloudinary is not set up (local dev fallback)
+    app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+    console.log("📂 Serving local /uploads (Cloudinary not configured)");
+}
 
 
 // Note: Basic request logging is handled by the performanceLogger middleware above.
